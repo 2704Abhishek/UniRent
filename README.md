@@ -1,7 +1,7 @@
 <p align="center">
   <img src="./assets/banner.png" alt="UniRent Banner" />
 </p>
-#  UniRent – Smart Student Rental Platform with DevOps Integration
+                    UniRent – Smart Student Rental Platform with DevOps Integration
 
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?color=00F7FF&size=28&center=true&vCenter=true&width=700&lines=Welcome+to+UniRent+🚀;Rent+Smart+Save+More+💰;Built+with+DevOps+⚡;Scalable+%7C+Secure+%7C+Modern" />
@@ -17,7 +17,7 @@
 
 ---
 
-## 🧩 Problem Statement
+##  Problem Statement
 
 In university environments, students often require items such as books, electronics, and essentials for short durations. However, there is no centralized, trusted platform for peer-to-peer rentals.
 
@@ -31,7 +31,7 @@ This results in:
 
 ---
 
-## 💡 Solution Overview
+##  Solution Overview
 
 UniRent is a **full-stack web platform** that enables students to rent and share items within their campus community.
 
@@ -140,7 +140,7 @@ F --> G[Live Application 🚀]
 
 ---
 
-## 🎯 Aim of the Project
+##  Aim of the Project
 
 To build a **scalable, production-ready rental platform** integrating:
 
