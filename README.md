@@ -1,4 +1,7 @@
-# 🚀 UniRent – Smart Student Rental Platform with DevOps Integration
+<p align="center">
+  <img src="./assets/banner.png" alt="UniRent Banner" />
+</p>
+#  UniRent – Smart Student Rental Platform with DevOps Integration
 
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?color=00F7FF&size=28&center=true&vCenter=true&width=700&lines=Welcome+to+UniRent+🚀;Rent+Smart+Save+More+💰;Built+with+DevOps+⚡;Scalable+%7C+Secure+%7C+Modern" />
@@ -123,6 +126,7 @@ This project follows modern DevOps practices:
 ---
 
 ## 🚀 CI/CD Workflow
+![Workflow](./assets/workflow.png)
 
 ```mermaid
 graph LR
