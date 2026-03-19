@@ -42,7 +42,7 @@ Create a **trusted campus ecosystem** where:
 
 | Layer    | Technology        |
 | -------- | ----------------- |
-| Frontend | React + Tailwind  |
+| Frontend | React + Tailwind https://in.images.search.yahoo.com/images/view;_ylt=AwrKGGyq3LtpMfYU5hO9HAx.;_ylu=c2VjA3NyBHNsawNpbWcEb2lkAzM4MzFhYjkwYjI3OGNjYmU0MzUyMDEwNzVlZWJjZGE1BGdwb3MDMTUEaXQDYmluZw--?back=https%3A%2F%2Fin.images.search.yahoo.com%2Fsearch%2Fimages%3Fp%3DReact%2B%252B%2BTailwind%26type%3DG210IN885G91992M852d8dae20725c7214226eb13f60fd6e%26fr%3Dmcafee%26fr2%3Dpiv-web%26tab%3Dorganic%26ri%3D15&w=680&h=383&imgurl=blogger.googleusercontent.com%2Fimg%2Fb%2FR29vZ2xl%2FAVvXsEgAhCKjcULr-fPgCBgFvWv0BZn4i9mRCniG44KPTCSeAIRxrdxUGa3EC2TvFsyGP0y4-IggUACKSBiN27LBIuyF0P4HTkyRDSJyqRz0RD-j7ewsYS7k3pSxD-JM4PrYmTFRvhJkc8gxySgnK_BEMXn4xcdFTKsv0xT-QDl22r9sJOyJZTDyVK7BvliK%2Fw1600%2Fe0af14c49a68d10630288d5382cad7076430220f.webp&rurl=https%3A%2F%2Fthesevendigitaldiary.blogspot.com%2F2023%2F10%2Fhow-to-use-tailwind-css-in-react-js.html&size=24KB&p=React+%2B+Tailwind&oid=3831ab90b278ccbe435201075eebcda5&fr2=piv-web&fr=mcafee&tt=How+to+Use+Tailwind+CSS+in+a+React+JS+Project&b=0&ni=21&no=15&ts=&tab=organic&sigr=7u14ljmIoi4O&sigb=p8hKNuTp4yNt&sigi=002CSBvogWIH&sigt=EONkwGBS4UKs&.crumb=/1xvtR9QGp0&fr=mcafee&fr2=piv-web&type=G210IN885G91992M852d8dae20725c7214226eb13f60fd6e |
 | Backend  | Node.js + Express |
 | Database | MongoDB           |
 | Storage  | Cloudinary        |
