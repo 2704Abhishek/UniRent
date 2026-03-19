@@ -1,196 +1,210 @@
-# 🚀 UniRent – Smart Campus Rental Ecosystem
+# 🚀 UniRent – Smart Student Rental Platform with DevOps Integration
 
-> 🧠 *Reimagining student life through a secure, AI-powered rental marketplace.*
-
----
-
-# 📄 PAGE 1 — 🌟 Introduction
-
-## 🔥 What is UniRent?
-
-UniRent is a **peer-to-peer rental platform** designed exclusively for university students to rent, lend, and share everyday items within campus.
-
-🎯 Built with:
-
-* Full Stack Development
-* DevOps Practices
-* Real-world Problem Solving
+<p align="center">
+  <img src="https://readme-typing-svg.herokuapp.com?color=00F7FF&size=28&center=true&vCenter=true&width=700&lines=Welcome+to+UniRent+🚀;Rent+Smart+Save+More+💰;Built+with+DevOps+⚡;Scalable+%7C+Secure+%7C+Modern" />
+</p>
 
 ---
 
-# 📄 PAGE 2 — 🎯 Problem & Vision
-
-## ❗ Problem
-
-Students face:
-
-* High cost of buying items
-* Temporary needs (projects, events)
-* Underutilized resources
-
-## 💡 Vision
-
-Create a **trusted campus ecosystem** where:
-
-> “Everything you need is already available — just rent it.”
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue?logo=docker)
+![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazon-aws)
+![CI/CD](https://img.shields.io/badge/CI/CD-Automated-black?logo=githubactions)
 
 ---
 
-# 📄 PAGE 3 — ⚙️ Tech Stack
+## 🧩 Problem Statement
 
-## 🛠 Core Technologies
+In university environments, students often require items such as books, electronics, and essentials for short durations. However, there is no centralized, trusted platform for peer-to-peer rentals.
 
-| Layer    | Technology        |
-| -------- | ----------------- |
-| Frontend | React + Tailwind https://in.images.search.yahoo.com/images/view;_ylt=AwrKGGyq3LtpMfYU5hO9HAx.;_ylu=c2VjA3NyBHNsawNpbWcEb2lkAzM4MzFhYjkwYjI3OGNjYmU0MzUyMDEwNzVlZWJjZGE1BGdwb3MDMTUEaXQDYmluZw--?back=https%3A%2F%2Fin.images.search.yahoo.com%2Fsearch%2Fimages%3Fp%3DReact%2B%252B%2BTailwind%26type%3DG210IN885G91992M852d8dae20725c7214226eb13f60fd6e%26fr%3Dmcafee%26fr2%3Dpiv-web%26tab%3Dorganic%26ri%3D15&w=680&h=383&imgurl=blogger.googleusercontent.com%2Fimg%2Fb%2FR29vZ2xl%2FAVvXsEgAhCKjcULr-fPgCBgFvWv0BZn4i9mRCniG44KPTCSeAIRxrdxUGa3EC2TvFsyGP0y4-IggUACKSBiN27LBIuyF0P4HTkyRDSJyqRz0RD-j7ewsYS7k3pSxD-JM4PrYmTFRvhJkc8gxySgnK_BEMXn4xcdFTKsv0xT-QDl22r9sJOyJZTDyVK7BvliK%2Fw1600%2Fe0af14c49a68d10630288d5382cad7076430220f.webp&rurl=https%3A%2F%2Fthesevendigitaldiary.blogspot.com%2F2023%2F10%2Fhow-to-use-tailwind-css-in-react-js.html&size=24KB&p=React+%2B+Tailwind&oid=3831ab90b278ccbe435201075eebcda5&fr2=piv-web&fr=mcafee&tt=How+to+Use+Tailwind+CSS+in+a+React+JS+Project&b=0&ni=21&no=15&ts=&tab=organic&sigr=7u14ljmIoi4O&sigb=p8hKNuTp4yNt&sigi=002CSBvogWIH&sigt=EONkwGBS4UKs&.crumb=/1xvtR9QGp0&fr=mcafee&fr2=piv-web&type=G210IN885G91992M852d8dae20725c7214226eb13f60fd6e |
-| Backend  | Node.js + Express |
-| Database | MongoDB           |
-| Storage  | Cloudinary        |
-| Chat     | Socket.io         |
-| Email    | Nodemailer        |
-| DevOps   | Docker            |
-| Cloud    | AWS / OCI         |
+This results in:
+
+* Unnecessary spending on rarely used items
+* Lack of affordable rental options
+* Unstructured and insecure transactions
+* No centralized system for listings and rentals
+* Poor communication between users
 
 ---
 
-# 📄 PAGE 4 — ✨ Key Features
+## 💡 Solution Overview
 
-## 🔐 Security First
+UniRent is a **full-stack web platform** that enables students to rent and share items within their campus community.
 
-* JWT Authentication
-* University Email Verification
-* OTP Return Confirmation
+It provides:
 
-## 💳 Smart Transactions
-
-* Rent + Deposit system
-* Escrow-based payments
-
-## 🧠 Intelligence Layer
-
-* AI price suggestion
-* Trust score system
-
-## 💬 Interaction
-
-* Real-time chat
-* Reviews & ratings
+* Secure authentication and user management
+* Smart item discovery and filtering
+* Seamless rental process
+* DevOps-enabled scalable deployment
 
 ---
 
-# 📄 PAGE 5 — 🔄 Complete Workflow
+## 🛠️ Tech Stack
 
-## 🔁 End-to-End Flow
+| Layer            | Technology                    |
+| ---------------- | ----------------------------- |
+| Frontend         | HTML, CSS, JavaScript / React |
+| Backend          | Node.js                       |
+| Database         | MongoDB                       |
+| Containerization | Docker                        |
+| Cloud            | AWS                           |
+| CI/CD            | GitHub Actions, Jenkins       |
+
+---
+
+## 🧰 Tools & Technologies
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=aws,docker,nodejs,mongodb,react,js,html,css,github,jenkins" />
+</p>
+
+---
+
+## 🏗️ Architecture Diagram
+
+![Architecture](https://via.placeholder.com/1200x600.png?text=UniRent+Architecture+Diagram)
+
+### 🧠 Architecture Explanation
+
+* Frontend interacts with backend APIs
+* Backend handles business logic and authentication
+* MongoDB stores all application data
+* Docker ensures consistency across environments
+* AWS enables scalable deployment
+
+---
+
+## ⚙️ Core Features
+
+### 🔐 Authentication
+
+* Secure login/signup system
+* Role-based access
+
+### 🔍 Search & Filtering
+
+* Smart item discovery
+* Filter by category, price, availability
+
+### 📦 Item Listing
+
+* Upload items with images
+* Manage pricing and availability
+
+### 💬 User Interaction
+
+* Connect renters and owners
+* Request-based rental system
+
+### 📊 Dashboard
+
+* Track listings and rentals
+* Monitor user activity
+
+### ⚡ Performance
+
+* Fast and responsive UI
+* Optimized user experience
+
+---
+
+## 🔄 DevOps Implementation
+
+This project follows modern DevOps practices:
+
+1. Version Control using Git & GitHub
+2. CI/CD pipeline using GitHub Actions / Jenkins
+3. Docker-based containerization
+4. AWS cloud deployment
+5. Automated build and deployment workflow
+
+---
+
+## 🚀 CI/CD Workflow
 
 ```mermaid
-flowchart TD
-A[User Signup/Login] --> B[Upload Item]
-B --> C[Item Listed]
-C --> D[User Searches Item]
-D --> E[Send Rental Request]
-E --> F[Owner Approves]
-F --> G[Payment (Rent + Deposit)]
-G --> H[Rental Active]
-H --> I[Return Initiated]
-I --> J[OTP Generated]
-J --> K[Owner Verifies OTP]
-K --> L[Deposit Refunded]
-L --> M[Review & Rating]
+graph LR
+A[Developer Code] --> B[GitHub Repository]
+B --> C[CI/CD Pipeline]
+C --> D[Build & Test]
+D --> E[Docker Image]
+E --> F[Deploy on AWS]
+F --> G[Live Application 🚀]
 ```
 
 ---
 
-# 📄 PAGE 6 — 🏗️ System Architecture
+## 🎯 Aim of the Project
 
-```mermaid
-flowchart LR
-User --> Frontend
-Frontend --> Backend
-Backend --> Database
-Backend --> Cloudinary
-Backend --> SocketIO
-Backend --> EmailService
-Backend --> PaymentSystem
-```
+To build a **scalable, production-ready rental platform** integrating:
 
-## 🧩 Layers
-
-* UI Layer → React
-* API Layer → Node.js
-* Data Layer → MongoDB
-* Real-time → Socket.io
-* DevOps → Docker
+* Full-stack development
+* Cloud computing
+* DevOps automation
 
 ---
 
-# 📄 PAGE 7 — 📊 Core Modules
+## 🎓 Learning Outcomes
 
-## 📦 Modules Overview
-
-### 👤 User Module
-
-* Authentication
-* Profile
-* Trust score
-
-### 📦 Item Module
-
-* Upload
-* Edit
-* Delete
-
-### 📅 Rental Module
-
-* Booking
-* Availability
-* Status tracking
-
-### 💳 Payment Module
-
-* Deposit handling
-* Refund system
-
-### 💬 Chat Module
-
-* Real-time communication
-
----
-
-# 📄 PAGE 8 — 🚀 Deployment & Future
-
-## 🚀 Deployment
-
+* Full-stack web development
+* REST API development
+* MongoDB database management
 * Docker containerization
-* Cloud-ready (AWS / OCI)
-* CI/CD pipeline ready
+* CI/CD pipeline setup
+* AWS deployment
+* Real-world system design
+
+---
+
+## 🏆 Impact & Benefits
+
+### 👨‍🎓 For Students
+
+* Cost-effective rentals
+* Easy access to resources
+* Trusted platform
+
+### 💼 For Developers
+
+* Strong portfolio project
+* Real-world DevOps implementation
+* Placement-ready project
+
+---
 
 ## 🔮 Future Enhancements
 
-* Mobile App 📱
-* AI Recommendation Engine 🤖
-* QR Code Return System 📷
-* Push Notifications 🔔
+* 💳 Payment integration
+* 🤖 AI recommendations
+* 📱 Mobile application
+* ⭐ Ratings & reviews
+* 🔔 Notifications
 
 ---
 
-# 🎯 Why This Project Stands Out
+## 🧠 Why This Project Stands Out
 
-✅ Real-world use case
-✅ Secure transaction flow
-✅ DevOps integration
-✅ Scalable architecture
-✅ Startup-level thinking
+* Real-world problem solving
+* DevOps integration
+* Scalable architecture
+* Full-stack implementation
+* Portfolio-ready
 
 ---
 
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 **Abhishek Yadav**
 B.Tech CSE (DevOps Specialization)
 
 ---
 
-# ⭐ Support
+## ⭐ Support
 
 If you like this project, give it a ⭐ on GitHub!
 
+---
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:00c6ff,100:0072ff&height=120&section=footer"/>
