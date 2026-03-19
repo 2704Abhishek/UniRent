@@ -64,7 +64,7 @@ It provides:
 
 ## 🏗️ Architecture Diagram
 
-![Architecture](https://via.placeholder.com/1200x600.png?text=UniRent+Architecture+Diagram)
+![Architecture](./assets/architecture.png)
 
 ### 🧠 Architecture Explanation
 
