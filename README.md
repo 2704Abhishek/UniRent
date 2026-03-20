@@ -1,7 +1,7 @@
 <p align="center">
   <img src="./assets/banner.png" alt="UniRent Banner" />
 </p>
-<h2 align="center"> Smart Student Rental Platform with DevOps Integration</h2>
+<h2 align="center"> UniRent-A Smart Student Rental Platform with DevOps Integration</h2>
 
 <p align="center">
   <img src="https://readme-typing-svg.herokuapp.com?color=00F7FF&size=28&center=true&vCenter=true&width=700&lines=Welcome+to+UniRent+🚀;Rent+Smart+Save+More+💰;Built+with+DevOps+⚡;Scalable+%7C+Secure+%7C+Modern" />
