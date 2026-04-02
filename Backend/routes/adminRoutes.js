@@ -1,6 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { getAllUsers, removeFakeListing, manageDispute, moderateReview } = require("../controllers/adminController");
+const { 
+  getAllUsers, 
+  removeFakeListing, 
+  manageDispute, 
+  moderateReview, 
+  getDamageReports, 
+  resolveDamageReport 
+} = require("../controllers/adminController");
+
 const authMiddleware = require("../middleware/authMiddleware");
 
 router.get("/users", authMiddleware, getAllUsers);

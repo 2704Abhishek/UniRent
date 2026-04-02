@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const reviewSchema = new mongoose.Schema({
   reviewer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   target_user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
