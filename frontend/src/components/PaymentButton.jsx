@@ -1,13 +1,13 @@
-import axios from "axios";
+import { api } from "../services/api";
 
-export default function PaymentButton({ rentalId }) {
+export default function PaymentButton({ rentalId, onSuccess }) {
   const handlePayment = async () => {
-    await axios.post(`/payments/${rentalId}/initiate`);
-    alert("Payment successful, rental active!");
+    await api.post(`/payments/${rentalId}/initiate`, {});
+    onSuccess?.();
   };
 
   return (
-    <button className="bg-green-500 text-white px-4 py-2 mt-2">
+    <button className="btn-primary mt-2" onClick={handlePayment}>
       Pay & Start Rental
     </button>
   );

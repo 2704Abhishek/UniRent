@@ -1,8 +1,23 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { api } from "./services/api";
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+test("api helper attaches the auth header", async () => {
+  localStorage.setItem("token", "sample-token");
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ success: true })
+    })
+  );
+
+  await api.post("/auth/login", { email: "test@example.com" });
+
+  expect(global.fetch).toHaveBeenCalledWith(
+    "http://localhost:5000/auth/login",
+    expect.objectContaining({
+      method: "POST",
+      headers: expect.objectContaining({
+        Authorization: "Bearer sample-token"
+      })
+    })
+  );
 });

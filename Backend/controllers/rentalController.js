@@ -1,5 +1,6 @@
 const Rental = require("../models/Rental");
 const Item = require("../models/Item");
+const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
 
@@ -13,12 +14,12 @@ exports.requestRental = async (req, res) => {
     const rental = new Rental({
       order_id: uuidv4(),
       item_id,
-      owner_id: item.owner_id,
+      owner_id: item.owner,
       renter_id: req.user.id,
       start_date,
       end_date,
-      rent_price: item.price_per_day,
-      deposit_amount: item.deposit_amount
+      rent_price: item.pricePerDay,
+      deposit_amount: item.depositAmount || 0
     });
 
     await rental.save();
@@ -42,6 +43,22 @@ exports.approveRental = async (req, res) => {
   }
 };
 
+exports.getMyRentals = async (req, res) => {
+  try {
+    const rentals = await Rental.find({
+      $or: [{ renter_id: req.user.id }, { owner_id: req.user.id }]
+    })
+      .populate("item_id")
+      .populate("owner_id", "name email")
+      .populate("renter_id", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json(rentals);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // Generate OTP for return
 exports.generateReturnOTP = async (req, res) => {
   try {
@@ -53,6 +70,8 @@ exports.generateReturnOTP = async (req, res) => {
     rental.otp_expiry = new Date(Date.now() + 10 * 60000); // 10 min expiry
     await rental.save();
 
+    const owner = await User.findById(rental.owner_id);
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
@@ -60,7 +79,7 @@ exports.generateReturnOTP = async (req, res) => {
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: "owner_email@example.com", // Replace with actual owner email
+      to: owner?.email || process.env.EMAIL_USER,
       subject: "UniRent Return OTP",
       text: `Your OTP for item return is ${otp}`
     });

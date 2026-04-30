@@ -6,6 +6,12 @@ const nodemailer = require("nodemailer");
 exports.signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(409).json({ error: "User already exists" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({ name, email, password: hashedPassword });
@@ -36,6 +42,7 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
+    const jwtSecret = process.env.JWT_SECRET || process.env.JWT_SECRET_KEY;
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -43,8 +50,22 @@ exports.login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ error: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.json({ token, user });
+    if (!jwtSecret) {
+      return res.status(500).json({ error: "JWT secret is not configured" });
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role }, jwtSecret, { expiresIn: "1d" });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        trust_score: user.trust_score,
+        university_verified: user.university_verified
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -1,2 +1,29 @@
 # env files should not be committed to version control
 .env
+.env.*
+!.env.example
+
+# dependencies
+node_modules/
+Backend/node_modules/
+frontend/node_modules/
+
+# builds
+build/
+dist/
+frontend/build/
+
+# runtime uploads and logs
+uploads/
+Backend/uploads/
+*.log
+startup.*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

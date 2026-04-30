@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const AuthContext = createContext();
 
@@ -8,13 +8,29 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      // decode or fetch user profile
-      setUser({ email: "amit@university.edu" });
+      const storedUser = localStorage.getItem("user");
+      setUser(storedUser ? JSON.parse(storedUser) : null);
+    } else {
+      setUser(null);
     }
   }, [token]);
 
+  const login = (nextToken, nextUser) => {
+    localStorage.setItem("token", nextToken);
+    localStorage.setItem("user", JSON.stringify(nextUser));
+    setToken(nextToken);
+    setUser(nextUser);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, setToken }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

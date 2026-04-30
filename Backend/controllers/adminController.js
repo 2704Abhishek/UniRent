@@ -10,9 +10,41 @@ exports.getDamageReports = async (req, res) => {
   res.json(reports);
 };
 
+exports.getDisputes = async (req, res) => {
+  const disputes = await Dispute.find()
+    .populate("rental_id")
+    .populate("owner_id", "name email")
+    .populate("renter_id", "name email");
+  res.json(disputes);
+};
+
+exports.getStats = async (req, res) => {
+  const [users, items, reviews, disputes, reports] = await Promise.all([
+    User.find(),
+    Item.find(),
+    Review.find(),
+    Dispute.find(),
+    DamageReport.find()
+  ]);
+
+  const avgTrust = users.length
+    ? Math.round(users.reduce((sum, user) => sum + (user.trust_score || 0), 0) / users.length)
+    : 0;
+
+  res.json({
+    users: users.length,
+    items: items.length,
+    reviews: reviews.length,
+    disputes: disputes.length,
+    damageReports: reports.length,
+    avgTrust
+  });
+};
+
 exports.resolveDamageReport = async (req, res) => {
   const { deduction_amount } = req.body;
   const report = await DamageReport.findById(req.params.id);
+  if (!report) return res.status(404).json({ error: "Damage report not found" });
   report.status = "deducted";
   report.deduction_amount = deduction_amount;
   await report.save();
@@ -33,6 +65,7 @@ exports.removeFakeListing = async (req, res) => {
 exports.manageDispute = async (req, res) => {
   const { resolution } = req.body;
   const dispute = await Dispute.findById(req.params.id);
+  if (!dispute) return res.status(404).json({ error: "Dispute not found" });
   dispute.status = "resolved";
   dispute.resolution = resolution;
   await dispute.save();

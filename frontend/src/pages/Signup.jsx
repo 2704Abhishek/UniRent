@@ -1,26 +1,55 @@
 import { useState } from "react";
-import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../services/api";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post("/auth/signup", form);
-    alert("OTP sent to your email!");
+
+    try {
+      const data = await api.post("/auth/signup", form);
+      setMessage(data.message || "Signup successful.");
+      navigate("/login");
+    } catch (error) {
+      setMessage(error.message);
+    }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-96">
-        <h2 className="text-xl font-bold mb-4">Signup</h2>
-        <input className="border p-2 w-full mb-2" placeholder="Name"
-          onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        <input className="border p-2 w-full mb-2" placeholder="Email"
-          onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <input type="password" className="border p-2 w-full mb-2" placeholder="Password"
-          onChange={(e) => setForm({ ...form, password: e.target.value })} />
-        <button className="bg-blue-500 text-white p-2 w-full">Signup</button>
+    <div className="page-shell flex min-h-[calc(100vh-3rem)] items-center justify-center">
+      <form onSubmit={handleSubmit} className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-soft">
+        <p className="label">Join UniRent</p>
+        <h2 className="mt-2 text-3xl font-bold">Create account</h2>
+        <p className="mb-6 mt-2 text-sm text-slate-600">Create your UniRent account to start listing and renting items.</p>
+        <input
+          className="field mb-3"
+          placeholder="Name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
+        <input
+          className="field mb-3"
+          placeholder="Email"
+          type="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
+        <input
+          type="password"
+          className="field mb-4"
+          placeholder="Password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+        />
+        <button className="btn-primary w-full">Signup</button>
+        {message ? <p className="mt-3 text-sm text-slate-600">{message}</p> : null}
+        <p className="mt-4 text-sm text-slate-600">
+          Already have an account? <Link className="font-semibold text-campus" to="/login">Login</Link>
+        </p>
       </form>
     </div>
   );

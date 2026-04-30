@@ -5,6 +5,7 @@ const itemSchema = new mongoose.Schema({
   description: { type: String },
   category: { type: String },
   pricePerDay: { type: Number, required: true },
+  depositAmount: { type: Number, default: 0 },
   available: { type: Boolean, default: true },
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   images: [{ type: String }],

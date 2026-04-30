@@ -13,7 +13,7 @@ exports.initiatePayment = async (req, res) => {
       rental_id: rental._id,
       renter_id: rental.renter_id,
       owner_id: rental.owner_id,
-      amount: rental.rent_price,
+      amount: rental.rent_price + rental.deposit_amount,
       deposit: rental.deposit_amount,
       transaction_id: transactionId,
       status: "paid"
@@ -39,6 +39,7 @@ exports.refundDeposit = async (req, res) => {
     if (!rental) return res.status(404).json({ error: "Rental not found" });
 
     const payment = await Payment.findOne({ rental_id: rental._id });
+    if (!payment) return res.status(404).json({ error: "Payment not found" });
     payment.status = "refunded";
     rental.refund_status = "refunded";
     await payment.save();
@@ -55,10 +56,12 @@ exports.deductDeposit = async (req, res) => {
   try {
     const { deduction_amount } = req.body;
     const rental = await Rental.findById(req.params.id);
+    if (!rental) return res.status(404).json({ error: "Rental not found" });
     const payment = await Payment.findOne({ rental_id: rental._id });
+    if (!payment) return res.status(404).json({ error: "Payment not found" });
 
     payment.status = "deducted";
-    payment.deposit = payment.deposit - deduction_amount;
+    payment.deposit = Math.max(0, payment.deposit - deduction_amount);
     rental.refund_status = "deducted";
 
     await payment.save();

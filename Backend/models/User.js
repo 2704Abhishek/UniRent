@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   otp: { type: Number, default: null },   // ✅ OTP field for email verification
   trust_score: { type: Number, default: 50 },
   rating: { type: Number, default: 0 },
+  role: { type: String, enum: ["user", "admin"], default: "user" },
   profile_photo: { type: String }
 }, { timestamps: true });
 

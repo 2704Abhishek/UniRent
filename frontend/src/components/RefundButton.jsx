@@ -1,13 +1,13 @@
-import axios from "axios";
+import { api } from "../services/api";
 
-export default function RefundButton({ rentalId }) {
+export default function RefundButton({ rentalId, onSuccess }) {
   const handleRefund = async () => {
-    await axios.post(`/payments/${rentalId}/refund`);
-    alert("Deposit refunded!");
+    await api.post(`/payments/${rentalId}/refund`, {});
+    onSuccess?.();
   };
 
   return (
-    <button className="bg-blue-500 text-white px-4 py-2 mt-2">
+    <button className="btn-secondary mt-2" onClick={handleRefund}>
       Refund Deposit
     </button>
   );
