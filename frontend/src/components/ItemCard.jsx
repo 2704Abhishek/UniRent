@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 
+const fallbackImage = "https://placehold.co/600x400?text=UniRent";
+
 export default function ItemCard({ item }) {
-  const image = item.images?.[0] || "https://placehold.co/600x400?text=UniRent";
+  const image = item.images?.[0] || fallbackImage;
 
   return (
     <Link
@@ -9,7 +11,14 @@ export default function ItemCard({ item }) {
       className="group block overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft"
     >
       <div className="relative">
-        <img src={image} alt={item.title} className="h-44 w-full object-cover transition duration-300 group-hover:scale-105" />
+        <img
+          src={image}
+          alt={item.title}
+          className="h-44 w-full object-cover transition duration-300 group-hover:scale-105"
+          onError={(event) => {
+            event.currentTarget.src = fallbackImage;
+          }}
+        />
         <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm">
           {item.category || "General"}
         </span>
@@ -27,6 +36,9 @@ export default function ItemCard({ item }) {
           <p className="rounded-md bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
             Deposit Rs. {item.depositAmount || 0}
           </p>
+        </div>
+        <div className="rounded-md bg-campus px-4 py-2 text-center text-sm font-semibold text-white transition group-hover:bg-blue-700">
+          Rent this item
         </div>
       </div>
     </Link>

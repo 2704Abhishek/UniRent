@@ -8,6 +8,14 @@ exports.initiatePayment = async (req, res) => {
     const rental = await Rental.findById(req.params.id);
     if (!rental) return res.status(404).json({ error: "Rental not found" });
 
+    if (String(rental.renter_id) !== req.user.id) {
+      return res.status(403).json({ error: "Only the renter can pay for this rental" });
+    }
+
+    if (rental.payment_status !== "pending") {
+      return res.status(400).json({ error: "This rental has already been paid" });
+    }
+
     const transactionId = uuidv4();
     const payment = new Payment({
       rental_id: rental._id,
@@ -38,6 +46,14 @@ exports.refundDeposit = async (req, res) => {
     const rental = await Rental.findById(req.params.id);
     if (!rental) return res.status(404).json({ error: "Rental not found" });
 
+    if (String(rental.owner_id) !== req.user.id) {
+      return res.status(403).json({ error: "Only the owner can refund this deposit" });
+    }
+
+    if (rental.rental_status !== "returned" || rental.refund_status !== "pending") {
+      return res.status(400).json({ error: "Only pending returned rentals can be refunded" });
+    }
+
     const payment = await Payment.findOne({ rental_id: rental._id });
     if (!payment) return res.status(404).json({ error: "Payment not found" });
     payment.status = "refunded";
@@ -57,6 +73,15 @@ exports.deductDeposit = async (req, res) => {
     const { deduction_amount } = req.body;
     const rental = await Rental.findById(req.params.id);
     if (!rental) return res.status(404).json({ error: "Rental not found" });
+
+    if (String(rental.owner_id) !== req.user.id) {
+      return res.status(403).json({ error: "Only the owner can deduct from this deposit" });
+    }
+
+    if (rental.rental_status !== "returned" || rental.refund_status !== "pending") {
+      return res.status(400).json({ error: "Only pending returned rentals can be deducted" });
+    }
+
     const payment = await Payment.findOne({ rental_id: rental._id });
     if (!payment) return res.status(404).json({ error: "Payment not found" });
 

@@ -11,6 +11,25 @@ exports.requestRental = async (req, res) => {
     const item = await Item.findById(item_id);
     if (!item) return res.status(404).json({ error: "Item not found" });
 
+    if (!start_date || !end_date || new Date(start_date) > new Date(end_date)) {
+      return res.status(400).json({ error: "Please select a valid rental date range" });
+    }
+
+    if (String(item.owner) === req.user.id) {
+      return res.status(400).json({ error: "You cannot rent your own item" });
+    }
+
+    const existingRental = await Rental.findOne({
+      item_id,
+      renter_id: req.user.id,
+      rental_status: { $in: ["pending", "approved", "active"] },
+      payment_status: { $in: ["pending", "paid"] }
+    });
+
+    if (existingRental) {
+      return res.status(409).json({ error: "You already have a rental request for this item" });
+    }
+
     const rental = new Rental({
       order_id: uuidv4(),
       item_id,
@@ -34,6 +53,10 @@ exports.approveRental = async (req, res) => {
   try {
     const rental = await Rental.findById(req.params.id);
     if (!rental) return res.status(404).json({ error: "Rental not found" });
+
+    if (String(rental.owner_id) !== req.user.id) {
+      return res.status(403).json({ error: "Only the owner can approve this rental" });
+    }
 
     rental.rental_status = "approved";
     await rental.save();
@@ -59,11 +82,35 @@ exports.getMyRentals = async (req, res) => {
   }
 };
 
+exports.deleteRental = async (req, res) => {
+  try {
+    const rental = await Rental.findById(req.params.id);
+    if (!rental) return res.status(404).json({ error: "Rental not found" });
+
+    if (String(rental.renter_id) !== req.user.id) {
+      return res.status(403).json({ error: "You can only delete your own rental request" });
+    }
+
+    if (rental.payment_status !== "pending" || rental.rental_status !== "pending") {
+      return res.status(400).json({ error: "Only pending rental requests can be deleted" });
+    }
+
+    await rental.deleteOne();
+    res.json({ message: "Rental request deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // Generate OTP for return
 exports.generateReturnOTP = async (req, res) => {
   try {
     const rental = await Rental.findById(req.params.id);
     if (!rental) return res.status(404).json({ error: "Rental not found" });
+
+    if (String(rental.renter_id) !== req.user.id) {
+      return res.status(403).json({ error: "Only the renter can start the return process" });
+    }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     rental.return_otp = otp;

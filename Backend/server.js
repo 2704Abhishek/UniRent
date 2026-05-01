@@ -1,4 +1,5 @@
 require("dotenv").config();
+const dns = require("dns");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -15,6 +16,8 @@ const chatRoutes = require("./routes/chatRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const errorHandler = require("./middleware/errorHandler");
+
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const app = express();
 const server = http.createServer(app);

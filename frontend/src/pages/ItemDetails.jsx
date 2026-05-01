@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import RentalRequestForm from "../components/RentalRequestForm";
 import { api } from "../services/api";
 
+const fallbackImage = "https://placehold.co/900x600?text=UniRent";
+
 export default function ItemDetail() {
   const { id } = useParams();
   const [item, setItem] = useState(null);
@@ -26,12 +28,19 @@ export default function ItemDetail() {
     return <div className="page-shell rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600">{message}</div>;
   }
 
-  const image = item.images?.[0] || "https://placehold.co/900x600?text=UniRent";
+  const image = item.images?.[0] || fallbackImage;
 
   return (
     <div className="page-shell">
       <section className="grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-soft lg:grid-cols-[1fr_0.9fr]">
-        <img src={image} alt={item.title} className="h-72 w-full object-cover lg:h-full" />
+        <img
+          src={image}
+          alt={item.title}
+          className="h-72 w-full object-cover lg:h-full"
+          onError={(event) => {
+            event.currentTarget.src = fallbackImage;
+          }}
+        />
         <div className="space-y-5 p-6">
           <div>
             <p className="label">{item.category || "General"}</p>
@@ -52,6 +61,9 @@ export default function ItemDetail() {
             <p className="label mb-1">Owner</p>
             <p className="font-semibold text-ink">{item.owner?.name || item.owner?.email || "Unknown"}</p>
           </div>
+          <a className="btn-primary inline-flex justify-center" href="#rental-request">
+            Rent this item
+          </a>
         </div>
       </section>
 

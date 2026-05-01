@@ -68,7 +68,14 @@ function AppLayout() {
       <DashboardSidebar />
       <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8">
         <Routes>
-          <Route path="/home" element={<Home />} />
+          <Route
+            path="/home"
+            element={(
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            )}
+          />
           <Route
             path="/dashboard"
             element={(
@@ -85,7 +92,14 @@ function AppLayout() {
               </ProtectedRoute>
             )}
           />
-          <Route path="/items/:id" element={<ItemDetails />} />
+          <Route
+            path="/items/:id"
+            element={(
+              <ProtectedRoute>
+                <ItemDetails />
+              </ProtectedRoute>
+            )}
+          />
           <Route
             path="/admin"
             element={(

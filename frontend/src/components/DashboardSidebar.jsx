@@ -1,9 +1,10 @@
 import { useContext } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 export default function DashboardSidebar() {
   const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
   const isAdmin = user?.role === "admin";
   const linkClass = ({ isActive }) =>
     `block rounded-md px-3 py-2 text-sm font-medium transition ${
@@ -36,7 +37,15 @@ export default function DashboardSidebar() {
         {isAdmin ? <li><NavLink className={linkClass} to="/admin">Admin Panel</NavLink></li> : null}
         {user ? (
           <li>
-            <button className="mt-2 w-full rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition hover:bg-red-50" onClick={logout}>Logout</button>
+            <button
+              className="mt-2 w-full rounded-md px-3 py-2 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+              onClick={() => {
+                logout();
+                navigate("/", { replace: true });
+              }}
+            >
+              Logout
+            </button>
           </li>
         ) : (
           <>

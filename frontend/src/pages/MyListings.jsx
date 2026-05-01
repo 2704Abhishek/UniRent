@@ -11,6 +11,8 @@ const emptyDraft = {
   available: true
 };
 
+const fallbackImage = "https://placehold.co/600x400?text=No+Image";
+
 export default function MyListings() {
   const [items, setItems] = useState([]);
   const [message, setMessage] = useState("Loading your listings...");
@@ -154,29 +156,39 @@ export default function MyListings() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-semibold">{item.title}</h2>
-                    <p className="text-sm text-slate-600">{item.description || "No description provided."}</p>
+              <div className="grid gap-5 md:grid-cols-[180px_1fr]">
+                <img
+                  src={item.images?.[0] || fallbackImage}
+                  alt={item.title}
+                  className="h-36 w-full rounded-md border border-slate-200 object-cover md:h-full"
+                  onError={(event) => {
+                    event.currentTarget.src = fallbackImage;
+                  }}
+                />
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-semibold">{item.title}</h2>
+                      <p className="text-sm text-slate-600">{item.description || "No description provided."}</p>
+                    </div>
+                    <span className={`status-pill ${item.available ? "bg-green-100 text-green-700" : "bg-slate-200 text-slate-700"}`}>
+                      {item.available ? "Available" : "Unavailable"}
+                    </span>
                   </div>
-                  <span className={`status-pill ${item.available ? "bg-green-100 text-green-700" : "bg-slate-200 text-slate-700"}`}>
-                    {item.available ? "Available" : "Unavailable"}
-                  </span>
-                </div>
-                <div className="grid gap-2 text-sm text-slate-700 md:grid-cols-4">
-                  <p>Category: {item.category || "General"}</p>
-                  <p>Rent/day: Rs. {item.pricePerDay}</p>
-                  <p>Deposit: Rs. {item.depositAmount || 0}</p>
-                  <p>Owner: {item.owner?.name || item.owner?.email || "You"}</p>
-                </div>
-                <div className="flex gap-2 pt-2">
-                  <button className="btn-secondary" onClick={() => startEditing(item)}>
-                    Edit
-                  </button>
-                  <button className="btn-danger" onClick={() => deleteItem(item._id)}>
-                    Delete
-                  </button>
+                  <div className="grid gap-2 text-sm text-slate-700 md:grid-cols-4">
+                    <p>Category: {item.category || "General"}</p>
+                    <p>Rent/day: Rs. {item.pricePerDay}</p>
+                    <p>Deposit: Rs. {item.depositAmount || 0}</p>
+                    <p>Owner: {item.owner?.name || item.owner?.email || "You"}</p>
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <button className="btn-secondary" onClick={() => startEditing(item)}>
+                      Edit
+                    </button>
+                    <button className="btn-danger" onClick={() => deleteItem(item._id)}>
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
