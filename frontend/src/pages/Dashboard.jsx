@@ -56,6 +56,23 @@ export default function Dashboard() {
     }
   };
 
+  const formatMoney = (value) => `Rs. ${Number(value || 0).toLocaleString("en-IN")}`;
+
+  const getRentalDays = (rental) => {
+    if (!rental.start_date || !rental.end_date) return 1;
+    const start = new Date(rental.start_date);
+    const end = new Date(rental.end_date);
+    const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    return Math.max(diffDays, 1);
+  };
+
+  const getRentAmount = (rental) => {
+    const savedRent = Number(rental.rent_price || 0);
+    const dailyRent = Number(rental.item_id?.pricePerDay || 0);
+    const rentalDays = getRentalDays(rental);
+    return savedRent === dailyRent && rentalDays > 1 ? dailyRent * rentalDays : savedRent;
+  };
+
   return (
     <div className="page-shell">
       <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between">
@@ -83,6 +100,9 @@ export default function Dashboard() {
         const canDelete = canPay && rental.rental_status === "pending";
         const canReturn = isRenter && ["approved", "active"].includes(rental.rental_status);
         const canSettleDeposit = isOwner && rental.rental_status === "returned" && rental.refund_status === "pending";
+        const rentAmount = getRentAmount(rental);
+        const depositAmount = Number(rental.deposit_amount ?? rental.item_id?.depositAmount ?? 0);
+        const totalToPay = rentAmount + depositAmount;
 
         return (
           <div key={rental._id} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -98,7 +118,19 @@ export default function Dashboard() {
               </div>
               <span className="status-pill bg-blue-50 text-blue-700">{rental.rental_status}</span>
             </div>
-            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-md bg-blue-50 p-3">
+                <p className="text-blue-700">Rent amount</p>
+                <p className="font-semibold text-ink">{formatMoney(rentAmount)}</p>
+              </div>
+              <div className="rounded-md bg-slate-50 p-3">
+                <p className="text-slate-500">Deposit</p>
+                <p className="font-semibold text-ink">{formatMoney(depositAmount)}</p>
+              </div>
+              <div className="rounded-md bg-emerald-50 p-3">
+                <p className="text-emerald-700">Customer pays</p>
+                <p className="font-semibold text-ink">{formatMoney(totalToPay)}</p>
+              </div>
               <div className="rounded-md bg-slate-50 p-3">
                 <p className="text-slate-500">Payment status</p>
                 <p className="font-semibold text-ink">{rental.payment_status}</p>

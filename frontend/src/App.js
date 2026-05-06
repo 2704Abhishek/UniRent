@@ -10,6 +10,7 @@ import ItemDetails from "./pages/ItemDetails";
 import Login from "./pages/Login";
 import MyListings from "./pages/MyListings";
 import Signup from "./pages/Signup";
+import Wishlist from "./pages/Wishlist";
 
 function AuthWelcome() {
   return (
@@ -89,6 +90,14 @@ function AppLayout() {
             element={(
               <ProtectedRoute>
                 <MyListings />
+              </ProtectedRoute>
+            )}
+          />
+          <Route
+            path="/wishlist"
+            element={(
+              <ProtectedRoute>
+                <Wishlist />
               </ProtectedRoute>
             )}
           />

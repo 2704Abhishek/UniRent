@@ -1,17 +1,30 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { getWishlistIds } from "../utils/wishlist";
 
 export default function DashboardSidebar() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const isAdmin = user?.role === "admin";
+  const [wishlistCount, setWishlistCount] = useState(() => getWishlistIds(user?.id).length);
   const linkClass = ({ isActive }) =>
     `block rounded-md px-3 py-2 text-sm font-medium transition ${
       isActive
         ? "bg-blue-50 text-campus"
         : "text-slate-600 hover:bg-slate-100 hover:text-ink"
     }`;
+
+  useEffect(() => {
+    const updateCount = () => setWishlistCount(getWishlistIds(user?.id).length);
+    updateCount();
+    window.addEventListener("wishlist-updated", updateCount);
+    window.addEventListener("storage", updateCount);
+    return () => {
+      window.removeEventListener("wishlist-updated", updateCount);
+      window.removeEventListener("storage", updateCount);
+    };
+  }, [user?.id]);
 
   return (
     <aside className="w-full border-b border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur md:sticky md:top-0 md:h-screen md:w-72 md:border-b-0 md:border-r">
@@ -33,6 +46,23 @@ export default function DashboardSidebar() {
       <ul className="space-y-1">
         <li><NavLink className={linkClass} to="/home">Browse Items</NavLink></li>
         {user ? <li><NavLink className={linkClass} to="/my-listings">My Listings</NavLink></li> : null}
+        {user ? (
+          <li>
+            <NavLink className={linkClass} to="/wishlist">
+              <span className="flex items-center justify-between gap-3">
+                <span className="inline-flex items-center gap-2">
+                  <span aria-hidden="true" className="text-red-500">♥</span>
+                  Wishlist
+                </span>
+                {wishlistCount ? (
+                  <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600">
+                    {wishlistCount}
+                  </span>
+                ) : null}
+              </span>
+            </NavLink>
+          </li>
+        ) : null}
         {user ? <li><NavLink className={linkClass} to="/dashboard">My Rentals</NavLink></li> : null}
         {isAdmin ? <li><NavLink className={linkClass} to="/admin">Admin Panel</NavLink></li> : null}
         {user ? (

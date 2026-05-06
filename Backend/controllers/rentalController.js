@@ -30,6 +30,10 @@ exports.requestRental = async (req, res) => {
       return res.status(409).json({ error: "You already have a rental request for this item" });
     }
 
+    const start = new Date(start_date);
+    const end = new Date(end_date);
+    const rentalDays = Math.max(Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1, 1);
+
     const rental = new Rental({
       order_id: uuidv4(),
       item_id,
@@ -37,7 +41,7 @@ exports.requestRental = async (req, res) => {
       renter_id: req.user.id,
       start_date,
       end_date,
-      rent_price: item.pricePerDay,
+      rent_price: item.pricePerDay * rentalDays,
       deposit_amount: item.depositAmount || 0
     });
 

@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 // Simulate payment gateway
 exports.initiatePayment = async (req, res) => {
   try {
-    const rental = await Rental.findById(req.params.id);
+    const rental = await Rental.findById(req.params.id).populate("item_id");
     if (!rental) return res.status(404).json({ error: "Rental not found" });
 
     if (String(rental.renter_id) !== req.user.id) {
@@ -17,12 +17,20 @@ exports.initiatePayment = async (req, res) => {
     }
 
     const transactionId = uuidv4();
+    const start = new Date(rental.start_date);
+    const end = new Date(rental.end_date);
+    const rentalDays = Math.max(Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1, 1);
+    const dailyRent = Number(rental.item_id?.pricePerDay || 0);
+    const savedRent = Number(rental.rent_price || 0);
+    const rentAmount = savedRent === dailyRent && rentalDays > 1 ? dailyRent * rentalDays : savedRent;
+    const depositAmount = Number(rental.deposit_amount || 0);
+
     const payment = new Payment({
       rental_id: rental._id,
       renter_id: rental.renter_id,
       owner_id: rental.owner_id,
-      amount: rental.rent_price + rental.deposit_amount,
-      deposit: rental.deposit_amount,
+      amount: rentAmount + depositAmount,
+      deposit: depositAmount,
       transaction_id: transactionId,
       status: "paid"
     });
