@@ -12,15 +12,16 @@ export default function Home() {
   const [mode, setMode] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const rentableItems = user
+  const listedItems = user
     ? items.filter((item) => {
         const ownerId = item.owner?._id || item.owner?.id || item.owner;
         return String(ownerId) !== String(user.id);
       })
     : items;
+  const availableCount = listedItems.filter((item) => item.available !== false && !item.isOnRent).length;
   const filteredItems = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    return rentableItems.filter((item) => {
+    return listedItems.filter((item) => {
       const matchesCategory = activeCategory === "All" || item.category === activeCategory;
       const haystack = [
         item.title,
@@ -31,7 +32,7 @@ export default function Home() {
       ].filter(Boolean).join(" ").toLowerCase();
       return matchesCategory && (!query || haystack.includes(query));
     });
-  }, [activeCategory, rentableItems, searchTerm]);
+  }, [activeCategory, listedItems, searchTerm]);
 
   const loadItems = async () => {
     try {
@@ -78,8 +79,8 @@ export default function Home() {
         </div>
         <div className="grid content-center gap-3 bg-gradient-to-br from-blue-50 via-emerald-50 to-white p-6">
           <div className="flex items-center justify-between rounded-md bg-white/90 p-3 shadow-sm">
-            <span className="text-sm font-medium text-slate-600">Items from other users</span>
-            <span className="text-2xl font-bold text-campus">{rentableItems.length}</span>
+            <span className="text-sm font-medium text-slate-600">Listed by other users</span>
+            <span className="text-2xl font-bold text-campus">{listedItems.length}</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-md bg-ink p-3 text-white shadow-sm">
@@ -170,7 +171,7 @@ export default function Home() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium text-slate-600">
-                Showing {filteredItems.length} of {rentableItems.length} rentable items
+                Showing {filteredItems.length} of {listedItems.length} listed items. {availableCount} available now.
               </p>
             </div>
           </div>
@@ -181,13 +182,13 @@ export default function Home() {
             </div>
           ) : null}
 
-          {!message && rentableItems.length === 0 ? (
+          {!message && listedItems.length === 0 ? (
             <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
-              No items from other users are available to rent yet.
+              No items from other users are listed yet.
             </div>
           ) : null}
 
-          {!message && rentableItems.length > 0 && filteredItems.length === 0 ? (
+          {!message && listedItems.length > 0 && filteredItems.length === 0 ? (
             <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
               No matching items found. Try another search or category.
             </div>

@@ -1,5 +1,6 @@
 const Payment = require("../models/Payment");
 const Rental = require("../models/Rental");
+const Item = require("../models/Item");
 const { v4: uuidv4 } = require("uuid");
 
 // Simulate payment gateway
@@ -14,6 +15,20 @@ exports.initiatePayment = async (req, res) => {
 
     if (rental.payment_status !== "pending") {
       return res.status(400).json({ error: "This rental has already been paid" });
+    }
+
+    if (!rental.item_id?.available) {
+      return res.status(409).json({ error: "This item is already on rent" });
+    }
+
+    const activeItemRental = await Rental.findOne({
+      _id: { $ne: rental._id },
+      item_id: rental.item_id._id,
+      rental_status: { $in: ["approved", "active"] }
+    });
+
+    if (activeItemRental) {
+      return res.status(409).json({ error: "This item is already on rent" });
     }
 
     const transactionId = uuidv4();
@@ -41,6 +56,7 @@ exports.initiatePayment = async (req, res) => {
 
     await payment.save();
     await rental.save();
+    await Item.findByIdAndUpdate(rental.item_id._id, { available: false });
 
     res.json({ message: "Payment successful", payment });
   } catch (err) {

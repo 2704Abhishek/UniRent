@@ -186,8 +186,8 @@ export default function MyListings() {
                       <h2 className="text-xl font-semibold">{item.title}</h2>
                       <p className="text-sm text-slate-600">{item.description || "No description provided."}</p>
                     </div>
-                    <span className={`status-pill ${item.available ? "bg-green-100 text-green-700" : "bg-slate-200 text-slate-700"}`}>
-                      {item.available ? "Available" : "Unavailable"}
+                    <span className={`status-pill ${item.isOnRent ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
+                      {item.isOnRent ? "On rent" : "Available"}
                     </span>
                   </div>
                   <div className="grid gap-2 text-sm text-slate-700 md:grid-cols-4">

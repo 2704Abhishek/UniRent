@@ -1,4 +1,5 @@
 const Item = require("../models/Item");
+const Rental = require("../models/Rental");
 
 function getUploadedImageUrl(req) {
   if (!req.file) {
@@ -46,8 +47,16 @@ exports.createItem = async (req, res) => {
 
 exports.getItems = async (req, res) => {
   try {
+    const activeRentals = await Rental.find({
+      rental_status: { $in: ["approved", "active"] }
+    }).select("item_id");
+    const rentedItemIds = new Set(activeRentals.map((rental) => String(rental.item_id)).filter(Boolean));
+
     const items = await Item.find().populate("owner", "name email");
-    res.json(items);
+    res.json(items.map((item) => ({
+      ...item.toObject(),
+      isOnRent: rentedItemIds.has(String(item._id))
+    })));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -56,7 +65,16 @@ exports.getItems = async (req, res) => {
 exports.getMyItems = async (req, res) => {
   try {
     const items = await Item.find({ owner: req.user.id }).populate("owner", "name email");
-    res.json(items);
+    const activeRentals = await Rental.find({
+      owner_id: req.user.id,
+      rental_status: { $in: ["approved", "active"] }
+    }).select("item_id renter_id rental_status");
+    const rentedItemIds = new Set(activeRentals.map((rental) => String(rental.item_id)));
+
+    res.json(items.map((item) => ({
+      ...item.toObject(),
+      isOnRent: rentedItemIds.has(String(item._id))
+    })));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -70,7 +88,15 @@ exports.getItemById = async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    res.json(item);
+    const activeRental = await Rental.findOne({
+      item_id: item._id,
+      rental_status: { $in: ["approved", "active"] }
+    });
+
+    res.json({
+      ...item.toObject(),
+      isOnRent: Boolean(activeRental)
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -37,7 +37,9 @@ export default function ItemDetail() {
   }
 
   const image = item.images?.[0] || fallbackImage;
+  const isAvailable = item.available !== false && !item.isOnRent;
   const requestRental = () => {
+    if (!isAvailable) return;
     const form = document.getElementById("rental-request");
     form?.scrollIntoView({ behavior: "smooth", block: "start" });
     form?.querySelector("input")?.focus({ preventScroll: true });
@@ -84,8 +86,8 @@ export default function ItemDetail() {
             <p className="font-semibold">{item.address || "Pickup address will be shared by the owner."}</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button className="btn-primary" type="button" onClick={requestRental}>
-              Rent this item
+            <button className="btn-primary" type="button" onClick={requestRental} disabled={!isAvailable}>
+              {isAvailable ? "Rent this item" : "Currently on rent"}
             </button>
             <button
               className={`rounded-md border px-4 py-2 text-sm font-semibold transition ${
@@ -103,7 +105,13 @@ export default function ItemDetail() {
         </div>
       </section>
 
-      <RentalRequestForm itemId={id} />
+      {isAvailable ? (
+        <RentalRequestForm itemId={id} />
+      ) : (
+        <div className="rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600 shadow-sm">
+          This item is already on rent, so new rental requests are closed for now.
+        </div>
+      )}
     </div>
   );
 }

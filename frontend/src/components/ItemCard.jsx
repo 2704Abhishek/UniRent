@@ -4,9 +4,10 @@ const fallbackImage = "https://placehold.co/600x400?text=UniRent";
 
 export default function ItemCard({ item, action }) {
   const image = item.images?.[0] || fallbackImage;
+  const isUnavailable = item.available === false || item.isOnRent;
 
   return (
-    <article className="group overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-soft">
+    <article className={`group overflow-hidden rounded-lg border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft ${isUnavailable ? "border-amber-200" : "border-slate-200 hover:border-blue-200"}`}>
       <Link to={`/items/${item._id}`} className="block">
         <div className="relative overflow-hidden">
           <img
@@ -20,6 +21,11 @@ export default function ItemCard({ item, action }) {
           <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm">
             {item.category || "General"}
           </span>
+          {isUnavailable ? (
+            <span className="absolute right-3 top-3 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800 shadow-sm">
+              Not available
+            </span>
+          ) : null}
         </div>
       </Link>
       <div className="space-y-3 p-4">
@@ -42,12 +48,22 @@ export default function ItemCard({ item, action }) {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link
-            to={`/items/${item._id}`}
-            className="flex-1 rounded-md bg-campus px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
-          >
-            Rent this item
-          </Link>
+          {isUnavailable ? (
+            <button
+              type="button"
+              disabled
+              className="flex-1 rounded-md bg-slate-200 px-4 py-2 text-center text-sm font-semibold text-slate-500"
+            >
+              Item not available
+            </button>
+          ) : (
+            <Link
+              to={`/items/${item._id}`}
+              className="flex-1 rounded-md bg-campus px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+              Rent this item
+            </Link>
+          )}
           {action}
         </div>
       </div>

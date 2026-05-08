@@ -19,6 +19,19 @@ exports.requestRental = async (req, res) => {
       return res.status(400).json({ error: "You cannot rent your own item" });
     }
 
+    if (!item.available) {
+      return res.status(409).json({ error: "This item is already on rent" });
+    }
+
+    const activeItemRental = await Rental.findOne({
+      item_id,
+      rental_status: { $in: ["approved", "active"] }
+    });
+
+    if (activeItemRental) {
+      return res.status(409).json({ error: "This item is already on rent" });
+    }
+
     const existingRental = await Rental.findOne({
       item_id,
       renter_id: req.user.id,
@@ -155,6 +168,7 @@ exports.verifyReturnOTP = async (req, res) => {
     rental.rental_status = "returned";
     rental.refund_status = "refunded";
     await rental.save();
+    await Item.findByIdAndUpdate(rental.item_id, { available: true });
 
     res.json({ message: "Item return confirmed, deposit refunded", rental });
   } catch (err) {
