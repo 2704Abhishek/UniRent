@@ -23,3 +23,9 @@ export function toggleWishlistItem(userId, itemId) {
   saveWishlistIds(userId, nextIds);
   return nextIds;
 }
+
+export function removeWishlistItem(userId, itemId) {
+  const nextIds = getWishlistIds(userId).filter((savedId) => savedId !== String(itemId));
+  saveWishlistIds(userId, nextIds);
+  return nextIds;
+}

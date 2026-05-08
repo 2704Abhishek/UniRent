@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import ItemCard from "../components/ItemCard";
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../services/api";
-import { getWishlistIds } from "../utils/wishlist";
+import { getWishlistIds, removeWishlistItem } from "../utils/wishlist";
 
 export default function Wishlist() {
   const { user } = useContext(AuthContext);
@@ -40,6 +40,13 @@ export default function Wishlist() {
     [items, wishlistIds]
   );
 
+  const removeItem = (itemId) => {
+    const nextIds = removeWishlistItem(user?.id, itemId);
+    setWishlistIds(nextIds);
+    setItems((current) => current.filter((item) => nextIds.includes(String(item._id))));
+    setMessage(nextIds.length ? "" : "Your wishlist is empty.");
+  };
+
   return (
     <div className="page-shell">
       <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between">
@@ -66,7 +73,19 @@ export default function Wishlist() {
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {wishlistItems.map((item) => (
-          <ItemCard key={item._id} item={item} />
+          <ItemCard
+            key={item._id}
+            item={item}
+            action={(
+              <button
+                type="button"
+                className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                onClick={() => removeItem(item._id)}
+              >
+                Remove
+              </button>
+            )}
+          />
         ))}
       </div>
     </div>

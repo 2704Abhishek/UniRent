@@ -79,6 +79,10 @@ export default function ItemDetail() {
             <p className="label mb-1">Owner</p>
             <p className="font-semibold text-ink">{item.owner?.name || item.owner?.email || "Unknown"}</p>
           </div>
+          <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
+            <p className="label mb-1 text-emerald-700">Collection address</p>
+            <p className="font-semibold">{item.address || "Pickup address will be shared by the owner."}</p>
+          </div>
           <div className="flex flex-wrap gap-3">
             <button className="btn-primary" type="button" onClick={requestRental}>
               Rent this item

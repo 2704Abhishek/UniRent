@@ -4,6 +4,7 @@ const itemSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String },
   category: { type: String },
+  address: { type: String },
   pricePerDay: { type: Number, required: true },
   depositAmount: { type: Number, default: 0 },
   available: { type: Boolean, default: true },

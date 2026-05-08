@@ -65,6 +65,7 @@ export default function DashboardSidebar() {
         ) : null}
         {user ? <li><NavLink className={linkClass} to="/dashboard">My Rentals</NavLink></li> : null}
         {isAdmin ? <li><NavLink className={linkClass} to="/admin">Admin Panel</NavLink></li> : null}
+        {user ? <li><NavLink className={linkClass} to="/help">Help</NavLink></li> : null}
         {user ? (
           <li>
             <button

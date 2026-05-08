@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { RENTAL_CATEGORIES } from "../constants/categories";
 import { api } from "../services/api";
 
 const emptyDraft = {
   title: "",
   description: "",
   category: "",
+  address: "",
   pricePerDay: "",
   depositAmount: "",
   imageUrl: "",
@@ -39,6 +41,7 @@ export default function MyListings() {
       title: item.title || "",
       description: item.description || "",
       category: item.category || "",
+      address: item.address || "",
       pricePerDay: item.pricePerDay || "",
       depositAmount: item.depositAmount || "",
       imageUrl: item.images?.[0] || "",
@@ -57,6 +60,7 @@ export default function MyListings() {
         title: draft.title,
         description: draft.description,
         category: draft.category,
+        address: draft.address,
         pricePerDay: Number(draft.pricePerDay),
         depositAmount: Number(draft.depositAmount || 0),
         available: draft.available,
@@ -112,11 +116,16 @@ export default function MyListings() {
                   onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
                 />
                 <div className="grid gap-3 md:grid-cols-3">
-                  <input
+                  <select
                     className="field"
                     value={draft.category}
                     onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))}
-                  />
+                  >
+                    <option value="">Choose category</option>
+                    {RENTAL_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
                   <input
                     type="number"
                     min="0"
@@ -137,6 +146,12 @@ export default function MyListings() {
                   placeholder="Image URL"
                   value={draft.imageUrl}
                   onChange={(event) => setDraft((current) => ({ ...current, imageUrl: event.target.value }))}
+                />
+                <textarea
+                  className="field min-h-20"
+                  placeholder="Pickup address"
+                  value={draft.address}
+                  onChange={(event) => setDraft((current) => ({ ...current, address: event.target.value }))}
                 />
                 <label className="flex items-center gap-2 text-sm text-slate-700">
                   <input
@@ -181,6 +196,9 @@ export default function MyListings() {
                     <p>Deposit: Rs. {item.depositAmount || 0}</p>
                     <p>Owner: {item.owner?.name || item.owner?.email || "You"}</p>
                   </div>
+                  <p className="rounded-md bg-emerald-50 p-3 text-sm font-medium text-emerald-900">
+                    Pickup address: {item.address || "Not added yet"}
+                  </p>
                   <div className="flex gap-2 pt-2">
                     <button className="btn-secondary" onClick={() => startEditing(item)}>
                       Edit

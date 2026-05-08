@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { RENTAL_CATEGORIES } from "../constants/categories";
 import { api } from "../services/api";
 
 const initialForm = {
   title: "",
   description: "",
   category: "",
+  address: "",
   pricePerDay: "",
   depositAmount: "",
   image: null
@@ -29,6 +31,7 @@ export default function CreateItemForm({ onCreated }) {
       payload.append("title", form.title.trim());
       payload.append("description", form.description.trim());
       payload.append("category", form.category.trim());
+      payload.append("address", form.address.trim());
       payload.append("pricePerDay", Number(form.pricePerDay));
       payload.append("depositAmount", Number(form.depositAmount || 0));
 
@@ -52,7 +55,7 @@ export default function CreateItemForm({ onCreated }) {
       <div>
         <p className="label">Owner tools</p>
         <h2 className="mt-1 text-xl font-bold">List a new item</h2>
-        <p className="mt-1 text-sm text-slate-600">Add one sample listing so renters can discover it right away.</p>
+        <p className="mt-1 text-sm text-slate-600">Add clear pickup details so renters know where to collect it.</p>
       </div>
 
       <input
@@ -69,12 +72,17 @@ export default function CreateItemForm({ onCreated }) {
         onChange={(event) => updateField("description", event.target.value)}
       />
       <div className="grid gap-3 md:grid-cols-3">
-        <input
+        <select
           className="field"
-          placeholder="Category"
           value={form.category}
           onChange={(event) => updateField("category", event.target.value)}
-        />
+          required
+        >
+          <option value="">Choose category</option>
+          {RENTAL_CATEGORIES.map((category) => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
         <input
           type="number"
           min="0"
@@ -93,6 +101,13 @@ export default function CreateItemForm({ onCreated }) {
           onChange={(event) => updateField("depositAmount", event.target.value)}
         />
       </div>
+      <textarea
+        className="field min-h-24"
+        placeholder="Pickup address where the customer can collect this item"
+        value={form.address}
+        onChange={(event) => updateField("address", event.target.value)}
+        required
+      />
       <label className="block rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-700 transition hover:border-campus hover:bg-blue-50">
         <span className="font-semibold">Upload item photo</span>
         <span className="mt-1 block text-slate-500">

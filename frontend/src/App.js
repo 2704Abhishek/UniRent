@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthContext } from "./context/AuthContext";
 import AdminPanel from "./pages/AdminPanel";
 import Dashboard from "./pages/Dashboard";
+import Help from "./pages/Help";
 import Home from "./pages/Home";
 import ItemDetails from "./pages/ItemDetails";
 import Login from "./pages/Login";
@@ -98,6 +99,14 @@ function AppLayout() {
             element={(
               <ProtectedRoute>
                 <Wishlist />
+              </ProtectedRoute>
+            )}
+          />
+          <Route
+            path="/help"
+            element={(
+              <ProtectedRoute>
+                <Help />
               </ProtectedRoute>
             )}
           />
