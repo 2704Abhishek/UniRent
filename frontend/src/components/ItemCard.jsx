@@ -34,6 +34,9 @@ export default function ItemCard({ item, action }) {
             <h3 className="line-clamp-1 text-lg font-bold text-ink transition group-hover:text-campus">{item.title}</h3>
           </Link>
           <p className="mt-1 line-clamp-2 text-sm text-slate-600">{item.description || "Ready for short-term campus rentals."}</p>
+          {item.contactPhone ? (
+            <p className="mt-2 line-clamp-1 text-xs font-semibold text-blue-700">Phone: {item.contactPhone}</p>
+          ) : null}
           {item.address ? (
             <p className="mt-2 line-clamp-1 text-xs font-medium text-slate-500">Pickup: {item.address}</p>
           ) : null}

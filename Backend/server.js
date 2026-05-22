@@ -15,6 +15,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const assistantRoutes = require("./routes/assistantRoutes");
 const errorHandler = require("./middleware/errorHandler");
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
@@ -53,6 +54,7 @@ app.use("/reviews", reviewRoutes);
 app.use("/chats", chatRoutes);
 app.use("/payments", paymentRoutes);
 app.use("/admin", adminRoutes);
+app.use("/assistant", assistantRoutes);
 
 app.use(errorHandler);
 

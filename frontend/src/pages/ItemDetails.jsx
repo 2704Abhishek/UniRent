@@ -80,6 +80,10 @@ export default function ItemDetail() {
           <div className="rounded-lg border border-slate-200 p-4 text-sm text-slate-700">
             <p className="label mb-1">Owner</p>
             <p className="font-semibold text-ink">{item.owner?.name || item.owner?.email || "Unknown"}</p>
+            <div className="mt-3 rounded-md bg-blue-50 p-3">
+              <p className="text-xs font-semibold text-blue-700">Phone number</p>
+              <p className="mt-1 font-semibold text-blue-950">{item.contactPhone || "Phone number not added yet."}</p>
+            </div>
           </div>
           <div className="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900">
             <p className="label mb-1 text-emerald-700">Collection address</p>

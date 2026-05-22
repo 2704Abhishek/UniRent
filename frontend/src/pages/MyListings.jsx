@@ -6,6 +6,7 @@ const emptyDraft = {
   title: "",
   description: "",
   category: "",
+  contactPhone: "",
   address: "",
   pricePerDay: "",
   depositAmount: "",
@@ -41,6 +42,7 @@ export default function MyListings() {
       title: item.title || "",
       description: item.description || "",
       category: item.category || "",
+      contactPhone: item.contactPhone || "",
       address: item.address || "",
       pricePerDay: item.pricePerDay || "",
       depositAmount: item.depositAmount || "",
@@ -60,6 +62,7 @@ export default function MyListings() {
         title: draft.title,
         description: draft.description,
         category: draft.category,
+        contactPhone: draft.contactPhone,
         address: draft.address,
         pricePerDay: Number(draft.pricePerDay),
         depositAmount: Number(draft.depositAmount || 0),
@@ -147,6 +150,15 @@ export default function MyListings() {
                   value={draft.imageUrl}
                   onChange={(event) => setDraft((current) => ({ ...current, imageUrl: event.target.value }))}
                 />
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  maxLength="18"
+                  className="field"
+                  placeholder="Phone number"
+                  value={draft.contactPhone}
+                  onChange={(event) => setDraft((current) => ({ ...current, contactPhone: event.target.value }))}
+                />
                 <textarea
                   className="field min-h-20"
                   placeholder="Pickup address"
@@ -196,6 +208,9 @@ export default function MyListings() {
                     <p>Deposit: Rs. {item.depositAmount || 0}</p>
                     <p>Owner: {item.owner?.name || item.owner?.email || "You"}</p>
                   </div>
+                  <p className="rounded-md bg-blue-50 p-3 text-sm font-medium text-blue-900">
+                    Phone number: {item.contactPhone || "Not added yet"}
+                  </p>
                   <p className="rounded-md bg-emerald-50 p-3 text-sm font-medium text-emerald-900">
                     Pickup address: {item.address || "Not added yet"}
                   </p>

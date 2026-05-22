@@ -27,6 +27,7 @@ export default function Home() {
         item.title,
         item.description,
         item.category,
+        item.contactPhone,
         item.address,
         item.owner?.name
       ].filter(Boolean).join(" ").toLowerCase();

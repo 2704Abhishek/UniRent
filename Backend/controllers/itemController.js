@@ -22,6 +22,7 @@ function buildItemPayload(req) {
     title: body.title?.trim(),
     description: body.description?.trim() || "",
     category: body.category?.trim() || "",
+    contactPhone: body.contactPhone?.trim() || "",
     address: body.address?.trim() || "",
     pricePerDay: Number(body.pricePerDay),
     depositAmount: Number(body.depositAmount || 0),

@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { BrowserRouter as Router, Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import CustomerAssistant from "./components/CustomerAssistant";
 import DashboardSidebar from "./components/DashboardSidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthContext } from "./context/AuthContext";
@@ -128,6 +129,7 @@ function AppLayout() {
           />
         </Routes>
       </main>
+      <CustomerAssistant />
     </div>
   );
 }
