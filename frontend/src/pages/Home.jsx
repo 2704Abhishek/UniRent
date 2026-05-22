@@ -5,6 +5,16 @@ import { RENTAL_CATEGORIES } from "../constants/categories";
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../services/api";
 
+const initialFilters = {
+  minPrice: "",
+  maxPrice: "",
+  maxDeposit: "",
+  availability: "available",
+  condition: "All",
+  minTrust: "",
+  sortBy: "newest"
+};
+
 export default function Home() {
   const { user } = useContext(AuthContext);
   const [items, setItems] = useState([]);
@@ -12,6 +22,7 @@ export default function Home() {
   const [mode, setMode] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [filters, setFilters] = useState(initialFilters);
   const listedItems = user
     ? items.filter((item) => {
         const ownerId = item.owner?._id || item.owner?.id || item.owner;
@@ -21,19 +32,79 @@ export default function Home() {
   const availableCount = listedItems.filter((item) => item.available !== false && !item.isOnRent).length;
   const filteredItems = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    return listedItems.filter((item) => {
+    const minPrice = Number(filters.minPrice || 0);
+    const maxPrice = filters.maxPrice ? Number(filters.maxPrice) : Infinity;
+    const maxDeposit = filters.maxDeposit ? Number(filters.maxDeposit) : Infinity;
+    const minTrust = Number(filters.minTrust || 0);
+
+    const matchingItems = listedItems.filter((item) => {
       const matchesCategory = activeCategory === "All" || item.category === activeCategory;
+      const rentPrice = Number(item.pricePerDay || 0);
+      const deposit = Number(item.depositAmount || 0);
+      const safeRentalScore = Number(item.trustSignals?.safeRentalScore || 0);
+      const isAvailable = item.available !== false && !item.isOnRent;
+      const matchesAvailability =
+        filters.availability === "all" ||
+        (filters.availability === "available" && isAvailable) ||
+        (filters.availability === "unavailable" && !isAvailable);
+      const matchesCondition = filters.condition === "All" || item.condition === filters.condition;
       const haystack = [
         item.title,
         item.description,
         item.category,
+        item.condition,
+        item.brandModel,
+        item.accessories,
         item.contactPhone,
         item.address,
+        item.pickupInstructions,
         item.owner?.name
       ].filter(Boolean).join(" ").toLowerCase();
-      return matchesCategory && (!query || haystack.includes(query));
+
+      return (
+        matchesCategory &&
+        matchesAvailability &&
+        matchesCondition &&
+        rentPrice >= minPrice &&
+        rentPrice <= maxPrice &&
+        deposit <= maxDeposit &&
+        safeRentalScore >= minTrust &&
+        (!query || haystack.includes(query))
+      );
     });
-  }, [activeCategory, listedItems, searchTerm]);
+
+    return [...matchingItems].sort((first, second) => {
+      if (filters.sortBy === "price-low") return Number(first.pricePerDay || 0) - Number(second.pricePerDay || 0);
+      if (filters.sortBy === "price-high") return Number(second.pricePerDay || 0) - Number(first.pricePerDay || 0);
+      if (filters.sortBy === "deposit-low") return Number(first.depositAmount || 0) - Number(second.depositAmount || 0);
+      if (filters.sortBy === "trust-high") {
+        return Number(second.trustSignals?.safeRentalScore || 0) - Number(first.trustSignals?.safeRentalScore || 0);
+      }
+      return new Date(second.createdAt || 0) - new Date(first.createdAt || 0);
+    });
+  }, [activeCategory, filters, listedItems, searchTerm]);
+
+  const updateFilter = (field, value) => {
+    setFilters((current) => ({ ...current, [field]: value }));
+  };
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setActiveCategory("All");
+    setFilters(initialFilters);
+  };
+
+  const activeFilterCount = [
+    searchTerm.trim(),
+    activeCategory !== "All",
+    filters.minPrice,
+    filters.maxPrice,
+    filters.maxDeposit,
+    filters.availability !== "available",
+    filters.condition !== "All",
+    filters.minTrust,
+    filters.sortBy !== "newest"
+  ].filter(Boolean).length;
 
   const loadItems = async () => {
     try {
@@ -140,6 +211,9 @@ export default function Home() {
               <div>
                 <p className="label">Rent items</p>
                 <h2 className="mt-1 text-2xl font-bold">Choose something to rent</h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Filter by budget, deposit, availability, condition, and trust signals.
+                </p>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <input
@@ -151,6 +225,7 @@ export default function Home() {
                 <button className="btn-secondary" onClick={loadItems}>Refresh</button>
               </div>
             </div>
+
             <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
               {["All", ...RENTAL_CATEGORIES].map((category) => (
                 <button
@@ -166,6 +241,109 @@ export default function Home() {
                   {category}
                 </button>
               ))}
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+              <label className="space-y-1.5">
+                <span className="text-xs font-semibold text-slate-500">Min rent</span>
+                <input
+                  type="number"
+                  min="0"
+                  className="field"
+                  placeholder="Rs."
+                  value={filters.minPrice}
+                  onChange={(event) => updateFilter("minPrice", event.target.value)}
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-semibold text-slate-500">Max rent</span>
+                <input
+                  type="number"
+                  min="0"
+                  className="field"
+                  placeholder="Rs."
+                  value={filters.maxPrice}
+                  onChange={(event) => updateFilter("maxPrice", event.target.value)}
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-semibold text-slate-500">Max deposit</span>
+                <input
+                  type="number"
+                  min="0"
+                  className="field"
+                  placeholder="Rs."
+                  value={filters.maxDeposit}
+                  onChange={(event) => updateFilter("maxDeposit", event.target.value)}
+                />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-semibold text-slate-500">Availability</span>
+                <select
+                  className="field"
+                  value={filters.availability}
+                  onChange={(event) => updateFilter("availability", event.target.value)}
+                >
+                  <option value="available">Available now</option>
+                  <option value="all">All items</option>
+                  <option value="unavailable">On rent</option>
+                </select>
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-semibold text-slate-500">Condition</span>
+                <select
+                  className="field"
+                  value={filters.condition}
+                  onChange={(event) => updateFilter("condition", event.target.value)}
+                >
+                  <option value="All">Any condition</option>
+                  <option value="New">New</option>
+                  <option value="Like new">Like new</option>
+                  <option value="Good">Good</option>
+                  <option value="Fair">Fair</option>
+                  <option value="Needs care">Needs care</option>
+                </select>
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-semibold text-slate-500">Sort by</span>
+                <select
+                  className="field"
+                  value={filters.sortBy}
+                  onChange={(event) => updateFilter("sortBy", event.target.value)}
+                >
+                  <option value="newest">Newest</option>
+                  <option value="price-low">Rent low to high</option>
+                  <option value="price-high">Rent high to low</option>
+                  <option value="deposit-low">Deposit low first</option>
+                  <option value="trust-high">Safest first</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-end sm:justify-between">
+              <label className="space-y-1.5 sm:w-64">
+                <span className="text-xs font-semibold text-slate-500">Minimum Safe Rental Score</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={filters.minTrust || 0}
+                  onChange={(event) => updateFilter("minTrust", event.target.value)}
+                  className="w-full accent-blue-600"
+                />
+                <span className="text-xs font-semibold text-slate-600">{filters.minTrust || 0}+ trust score</span>
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                {activeFilterCount ? (
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-campus">
+                    {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+                  </span>
+                ) : null}
+                <button type="button" className="btn-secondary" onClick={resetFilters}>
+                  Clear filters
+                </button>
+              </div>
             </div>
           </div>
 

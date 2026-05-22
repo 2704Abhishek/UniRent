@@ -206,11 +206,17 @@ export default function CustomerAssistant() {
       ) : (
         <button
           type="button"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-campus text-2xl font-bold text-white shadow-soft transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100"
+          className="group flex items-center gap-3 rounded-full bg-white px-3 py-2 text-left text-ink shadow-soft ring-1 ring-blue-100 transition hover:-translate-y-0.5 hover:ring-campus focus:outline-none focus:ring-4 focus:ring-blue-100"
           aria-label="Open UniRent assistant"
           onClick={() => setIsOpen(true)}
         >
-          ?
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-blue-600 text-2xl shadow-sm transition group-hover:scale-105">
+            😊
+          </span>
+          <span className="hidden pr-1 sm:block">
+            <span className="block text-sm font-bold">Need help?</span>
+            <span className="block text-xs font-semibold text-emerald-700">Relax, I will guide you.</span>
+          </span>
         </button>
       )}
     </div>
