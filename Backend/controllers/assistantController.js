@@ -1,6 +1,8 @@
 const Item = require("../models/Item");
 const Rental = require("../models/Rental");
 
+const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
 const quickPrompts = [
   "How do I rent an item?",
   "Suggest available items",
@@ -217,6 +219,76 @@ function buildFollowUp(summary) {
   return "";
 }
 
+function buildGeminiPrompt({ message, localReply, recommendedItems, summary }) {
+  const itemLines = recommendedItems.length
+    ? recommendedItems
+        .map(
+          (item) =>
+            `- ${item.title} (${item.category}), Rs. ${item.pricePerDay}/day, deposit Rs. ${item.depositAmount}, link ${item.path}`
+        )
+        .join("\n")
+    : "- No matched item suggestions";
+
+  return [
+    "You are UniRent Assistant, a helpful customer support assistant for a campus rental marketplace.",
+    "Answer only about UniRent features: browsing items, rental requests, payment, return OTP, refunds, wishlist, item listing, and support.",
+    "Keep the answer short, friendly, and action-focused. Do not invent policies or promise actions the app cannot do.",
+    "",
+    `Customer message: ${message}`,
+    "",
+    "Current user context:",
+    `- Pending renter payments: ${summary.pendingPayments}`,
+    `- Active renter returns possible: ${summary.activeReturns}`,
+    `- Owner deposit settlements pending: ${summary.ownerReturns}`,
+    "",
+    "Available item suggestions:",
+    itemLines,
+    "",
+    "Local UniRent guidance to preserve:",
+    localReply
+  ].join("\n");
+}
+
+async function getGeminiReply({ message, localReply, recommendedItems, summary }) {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!apiKey || typeof fetch !== "function") return null;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModel)}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: buildGeminiPrompt({ message, localReply, recommendedItems, summary })
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.35,
+          maxOutputTokens: 220
+        }
+      })
+    }
+  );
+
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts
+    ?.map((part) => part.text)
+    .filter(Boolean)
+    .join("")
+    .trim() || null;
+}
+
 exports.handleAssistantMessage = async (req, res) => {
   try {
     const { message = "" } = req.body;
@@ -240,12 +312,21 @@ exports.handleAssistantMessage = async (req, res) => {
         ? " I could not find a strong item match right now, so try a broader search from Browse Items."
         : "";
 
+    const localReply = `${topic.answer}${recommendationText}${buildFollowUp(summary)}`;
+    const geminiReply = await getGeminiReply({
+      message: trimmedMessage,
+      localReply,
+      recommendedItems,
+      summary
+    });
+
     res.json({
-      reply: `${topic.answer}${recommendationText}${buildFollowUp(summary)}`,
+      reply: geminiReply || localReply,
       suggestions: topic.suggestions,
       actions: topic.actions,
       recommendedItems,
-      quickPrompts
+      quickPrompts,
+      mode: geminiReply ? "gemini" : "local"
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

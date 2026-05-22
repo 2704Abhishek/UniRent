@@ -68,8 +68,21 @@ export default function AdminPanel() {
         <h2 className="mb-3 text-xl font-semibold">Users</h2>
         {users.map((user) => (
           <div key={user._id} className="border-b py-2 last:border-b-0">
-            <p className="font-medium">{user.name}</p>
-            <p className="text-sm text-slate-600">{user.email}</p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium">{user.name}</p>
+                <p className="text-sm text-slate-600">{user.email}</p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">{user.role}</span>
+                <span className="rounded-full bg-blue-50 px-3 py-1 text-blue-700">Trust {user.trust_score || 0}</span>
+                {user.university_verified ? (
+                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">Verified</span>
+                ) : (
+                  <span className="rounded-full bg-amber-50 px-3 py-1 text-amber-700">Unverified</span>
+                )}
+              </div>
+            </div>
           </div>
         ))}
       </section>

@@ -6,10 +6,15 @@ const initialForm = {
   title: "",
   description: "",
   category: "",
+  condition: "Good",
+  brandModel: "",
+  accessories: "",
   contactPhone: "",
   address: "",
+  pickupInstructions: "",
   pricePerDay: "",
   depositAmount: "",
+  lateReturnFee: "",
   image: null
 };
 
@@ -48,10 +53,15 @@ export default function CreateItemForm({ onCreated }) {
       payload.append("title", form.title.trim());
       payload.append("description", form.description.trim());
       payload.append("category", form.category.trim());
+      payload.append("condition", form.condition.trim());
+      payload.append("brandModel", form.brandModel.trim());
+      payload.append("accessories", form.accessories.trim());
       payload.append("contactPhone", form.contactPhone.trim());
       payload.append("address", form.address.trim());
+      payload.append("pickupInstructions", form.pickupInstructions.trim());
       payload.append("pricePerDay", Number(form.pricePerDay));
       payload.append("depositAmount", Number(form.depositAmount || 0));
+      payload.append("lateReturnFee", Number(form.lateReturnFee || 0));
 
       if (form.image) {
         payload.append("image", form.image);
@@ -148,6 +158,42 @@ export default function CreateItemForm({ onCreated }) {
               </label>
             </div>
 
+            <div className="grid gap-4 md:col-span-2 md:grid-cols-3">
+              <label className="space-y-1.5">
+                <span className="text-sm font-semibold text-slate-700">Condition</span>
+                <select
+                  className="field"
+                  value={form.condition}
+                  onChange={(event) => updateField("condition", event.target.value)}
+                >
+                  <option value="New">New</option>
+                  <option value="Like new">Like new</option>
+                  <option value="Good">Good</option>
+                  <option value="Fair">Fair</option>
+                  <option value="Needs care">Needs care</option>
+                </select>
+              </label>
+              <label className="space-y-1.5 md:col-span-2">
+                <span className="text-sm font-semibold text-slate-700">Brand or model</span>
+                <input
+                  className="field"
+                  placeholder="Casio FX-991ES, Dell charger, lab coat size M"
+                  value={form.brandModel}
+                  onChange={(event) => updateField("brandModel", event.target.value)}
+                />
+              </label>
+            </div>
+
+            <label className="space-y-1.5 md:col-span-2">
+              <span className="text-sm font-semibold text-slate-700">Included accessories</span>
+              <input
+                className="field"
+                placeholder="Cable, cover, bag, manual, charger..."
+                value={form.accessories}
+                onChange={(event) => updateField("accessories", event.target.value)}
+              />
+            </label>
+
             <label className="space-y-1.5 md:col-span-2">
               <span className="text-sm font-semibold text-slate-700">Phone number</span>
               <input
@@ -171,6 +217,28 @@ export default function CreateItemForm({ onCreated }) {
                 required
               />
             </label>
+
+            <label className="space-y-1.5 md:col-span-2">
+              <span className="text-sm font-semibold text-slate-700">Pickup instructions</span>
+              <textarea
+                className="field min-h-20 resize-y"
+                placeholder="Available pickup time, landmark, ID check, handover notes"
+                value={form.pickupInstructions}
+                onChange={(event) => updateField("pickupInstructions", event.target.value)}
+              />
+            </label>
+
+            <label className="space-y-1.5">
+              <span className="text-sm font-semibold text-slate-700">Late return fee per day</span>
+              <input
+                type="number"
+                min="0"
+                className="field"
+                placeholder="Rs."
+                value={form.lateReturnFee}
+                onChange={(event) => updateField("lateReturnFee", event.target.value)}
+              />
+            </label>
           </div>
         </div>
 
@@ -183,6 +251,9 @@ export default function CreateItemForm({ onCreated }) {
               </h3>
               <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">
                 {form.description.trim() || "Description will appear here."}
+              </p>
+              <p className="mt-2 text-xs font-semibold text-emerald-700">
+                Condition: {form.condition || "Good"}
               </p>
             </div>
 
@@ -224,6 +295,8 @@ export default function CreateItemForm({ onCreated }) {
             <div className="space-y-2 rounded-md bg-white p-3 text-sm shadow-sm">
               <p className="font-semibold text-slate-700">Phone: {form.contactPhone.trim() || "Not added yet"}</p>
               <p className="line-clamp-3 text-slate-600">Pickup: {form.address.trim() || "Address not added yet"}</p>
+              <p className="line-clamp-2 text-slate-600">Accessories: {form.accessories.trim() || "Not added yet"}</p>
+              <p className="font-medium text-slate-700">Late fee: Rs. {Number(form.lateReturnFee || 0).toLocaleString("en-IN")}/day</p>
             </div>
           </div>
         </aside>

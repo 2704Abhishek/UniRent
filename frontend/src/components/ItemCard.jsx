@@ -5,6 +5,7 @@ const fallbackImage = "https://placehold.co/600x400?text=UniRent";
 export default function ItemCard({ item, action }) {
   const image = item.images?.[0] || fallbackImage;
   const isUnavailable = item.available === false || item.isOnRent;
+  const trustSignals = item.trustSignals || {};
 
   return (
     <article className={`group overflow-hidden rounded-lg border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft ${isUnavailable ? "border-amber-200" : "border-slate-200 hover:border-blue-200"}`}>
@@ -25,6 +26,10 @@ export default function ItemCard({ item, action }) {
             <span className="absolute right-3 top-3 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800 shadow-sm">
               Not available
             </span>
+          ) : trustSignals.safeRentalScore ? (
+            <span className="absolute right-3 top-3 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 shadow-sm">
+              Safe {trustSignals.safeRentalScore}
+            </span>
           ) : null}
         </div>
       </Link>
@@ -34,6 +39,21 @@ export default function ItemCard({ item, action }) {
             <h3 className="line-clamp-1 text-lg font-bold text-ink transition group-hover:text-campus">{item.title}</h3>
           </Link>
           <p className="mt-1 line-clamp-2 text-sm text-slate-600">{item.description || "Ready for short-term campus rentals."}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+              {item.condition || "Good"}
+            </span>
+            {item.brandModel ? (
+              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                {item.brandModel}
+              </span>
+            ) : null}
+            {trustSignals.universityVerified ? (
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                Verified campus user
+              </span>
+            ) : null}
+          </div>
           {item.contactPhone ? (
             <p className="mt-2 line-clamp-1 text-xs font-semibold text-blue-700">Phone: {item.contactPhone}</p>
           ) : null}
@@ -49,6 +69,20 @@ export default function ItemCard({ item, action }) {
           <p className="rounded-md bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
             Deposit Rs. {item.depositAmount || 0}
           </p>
+        </div>
+        <div className="grid grid-cols-3 gap-2 rounded-md bg-slate-50 p-2 text-center text-xs">
+          <div>
+            <p className="font-bold text-ink">{trustSignals.ratingAverage || "-"}</p>
+            <p className="text-slate-500">Rating</p>
+          </div>
+          <div>
+            <p className="font-bold text-ink">{trustSignals.completedRentals || 0}</p>
+            <p className="text-slate-500">Rentals</p>
+          </div>
+          <div>
+            <p className="font-bold text-ink">{trustSignals.reviewCount || 0}</p>
+            <p className="text-slate-500">Reviews</p>
+          </div>
         </div>
         <div className="flex gap-2">
           {isUnavailable ? (

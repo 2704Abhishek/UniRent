@@ -6,10 +6,15 @@ const emptyDraft = {
   title: "",
   description: "",
   category: "",
+  condition: "Good",
+  brandModel: "",
+  accessories: "",
   contactPhone: "",
   address: "",
+  pickupInstructions: "",
   pricePerDay: "",
   depositAmount: "",
+  lateReturnFee: "",
   imageUrl: "",
   available: true
 };
@@ -42,10 +47,15 @@ export default function MyListings() {
       title: item.title || "",
       description: item.description || "",
       category: item.category || "",
+      condition: item.condition || "Good",
+      brandModel: item.brandModel || "",
+      accessories: item.accessories || "",
       contactPhone: item.contactPhone || "",
       address: item.address || "",
+      pickupInstructions: item.pickupInstructions || "",
       pricePerDay: item.pricePerDay || "",
       depositAmount: item.depositAmount || "",
+      lateReturnFee: item.lateReturnFee || "",
       imageUrl: item.images?.[0] || "",
       available: item.available ?? true
     });
@@ -62,10 +72,15 @@ export default function MyListings() {
         title: draft.title,
         description: draft.description,
         category: draft.category,
+        condition: draft.condition,
+        brandModel: draft.brandModel,
+        accessories: draft.accessories,
         contactPhone: draft.contactPhone,
         address: draft.address,
+        pickupInstructions: draft.pickupInstructions,
         pricePerDay: Number(draft.pricePerDay),
         depositAmount: Number(draft.depositAmount || 0),
+        lateReturnFee: Number(draft.lateReturnFee || 0),
         available: draft.available,
         images: draft.imageUrl.trim() ? [draft.imageUrl.trim()] : []
       });
@@ -144,6 +159,31 @@ export default function MyListings() {
                     onChange={(event) => setDraft((current) => ({ ...current, depositAmount: event.target.value }))}
                   />
                 </div>
+                <div className="grid gap-3 md:grid-cols-3">
+                  <select
+                    className="field"
+                    value={draft.condition}
+                    onChange={(event) => setDraft((current) => ({ ...current, condition: event.target.value }))}
+                  >
+                    <option value="New">New</option>
+                    <option value="Like new">Like new</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                    <option value="Needs care">Needs care</option>
+                  </select>
+                  <input
+                    className="field md:col-span-2"
+                    placeholder="Brand or model"
+                    value={draft.brandModel}
+                    onChange={(event) => setDraft((current) => ({ ...current, brandModel: event.target.value }))}
+                  />
+                </div>
+                <input
+                  className="field"
+                  placeholder="Included accessories"
+                  value={draft.accessories}
+                  onChange={(event) => setDraft((current) => ({ ...current, accessories: event.target.value }))}
+                />
                 <input
                   className="field"
                   placeholder="Image URL"
@@ -164,6 +204,20 @@ export default function MyListings() {
                   placeholder="Pickup address"
                   value={draft.address}
                   onChange={(event) => setDraft((current) => ({ ...current, address: event.target.value }))}
+                />
+                <textarea
+                  className="field min-h-20"
+                  placeholder="Pickup instructions"
+                  value={draft.pickupInstructions}
+                  onChange={(event) => setDraft((current) => ({ ...current, pickupInstructions: event.target.value }))}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  className="field"
+                  placeholder="Late return fee per day"
+                  value={draft.lateReturnFee}
+                  onChange={(event) => setDraft((current) => ({ ...current, lateReturnFee: event.target.value }))}
                 />
                 <label className="flex items-center gap-2 text-sm text-slate-700">
                   <input
@@ -204,15 +258,25 @@ export default function MyListings() {
                   </div>
                   <div className="grid gap-2 text-sm text-slate-700 md:grid-cols-4">
                     <p>Category: {item.category || "General"}</p>
+                    <p>Condition: {item.condition || "Good"}</p>
                     <p>Rent/day: Rs. {item.pricePerDay}</p>
                     <p>Deposit: Rs. {item.depositAmount || 0}</p>
-                    <p>Owner: {item.owner?.name || item.owner?.email || "You"}</p>
                   </div>
+                  {item.brandModel || item.accessories || item.lateReturnFee ? (
+                    <div className="grid gap-2 text-sm text-slate-700 md:grid-cols-3">
+                      <p>Brand/model: {item.brandModel || "Not added"}</p>
+                      <p>Accessories: {item.accessories || "Not added"}</p>
+                      <p>Late fee: Rs. {item.lateReturnFee || 0}/day</p>
+                    </div>
+                  ) : null}
                   <p className="rounded-md bg-blue-50 p-3 text-sm font-medium text-blue-900">
                     Phone number: {item.contactPhone || "Not added yet"}
                   </p>
                   <p className="rounded-md bg-emerald-50 p-3 text-sm font-medium text-emerald-900">
                     Pickup address: {item.address || "Not added yet"}
+                  </p>
+                  <p className="rounded-md bg-slate-50 p-3 text-sm font-medium text-slate-700">
+                    Pickup instructions: {item.pickupInstructions || "Not added yet"}
                   </p>
                   <div className="flex gap-2 pt-2">
                     <button className="btn-secondary" onClick={() => startEditing(item)}>

@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [message, setMessage] = useState("Loading rentals...");
   const [activeOtpRentalId, setActiveOtpRentalId] = useState(null);
   const [activeView, setActiveView] = useState(null);
+  const [reviewDrafts, setReviewDrafts] = useState({});
 
   const fetchRentals = async () => {
     try {
@@ -52,6 +53,37 @@ export default function Dashboard() {
       await api.delete(`/rentals/${rentalId}`);
       setMessage("Rental request deleted.");
       fetchRentals();
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  const updateReviewDraft = (rentalId, field, value) => {
+    setReviewDrafts((current) => ({
+      ...current,
+      [rentalId]: {
+        rating: "5",
+        comment: "",
+        ...(current[rentalId] || {}),
+        [field]: value
+      }
+    }));
+  };
+
+  const submitReview = async (rental) => {
+    const draft = reviewDrafts[rental._id] || { rating: "5", comment: "" };
+
+    try {
+      await api.post("/reviews", {
+        target_user_id: rental.owner_id?._id || rental.owner_id,
+        rental_id: rental._id,
+        item_id: rental.item_id?._id || rental.item_id,
+        rating: Number(draft.rating || 5),
+        comment: draft.comment,
+        review_type: "owner"
+      });
+      setMessage("Review submitted. Thanks for helping other customers choose safely.");
+      setReviewDrafts((current) => ({ ...current, [rental._id]: { rating: "5", comment: "" } }));
     } catch (error) {
       setMessage(error.message);
     }
@@ -100,6 +132,23 @@ export default function Dashboard() {
       activeView === view ? "border-campus bg-blue-50" : "border-slate-200 bg-white hover:border-blue-200"
     }`;
 
+  const timelineSteps = [
+    { key: "pending", label: "Requested" },
+    { key: "approved", label: "Approved" },
+    { key: "paid", label: "Paid" },
+    { key: "active", label: "Active" },
+    { key: "returned", label: "Returned" },
+    { key: "refunded", label: "Refunded" }
+  ];
+
+  const isStepDone = (rental, stepKey) => {
+    const statusOrder = ["pending", "approved", "active", "returned", "refunded"];
+    if (stepKey === "paid") return rental.payment_status === "paid";
+    const currentIndex = statusOrder.indexOf(rental.rental_status);
+    const stepIndex = statusOrder.indexOf(stepKey);
+    return currentIndex >= stepIndex;
+  };
+
   const renderRentalCard = (rental, view) => {
     const isRenterView = view === "renter";
     const isOwnerView = view === "owner";
@@ -107,6 +156,7 @@ export default function Dashboard() {
     const canDelete = canPay && rental.rental_status === "pending";
     const canReturn = isRenterView && ["approved", "active"].includes(rental.rental_status);
     const canSettleDeposit = isOwnerView && rental.rental_status === "returned" && rental.refund_status === "pending";
+    const canReviewOwner = isRenterView && ["returned", "refunded"].includes(rental.rental_status);
     const rentAmount = getRentAmount(rental);
     const depositAmount = Number(rental.deposit_amount ?? rental.item_id?.depositAmount ?? 0);
     const totalToPay = rentAmount + depositAmount;
@@ -153,6 +203,25 @@ export default function Dashboard() {
           </div>
         </div>
 
+        <div className="mt-4 rounded-lg bg-slate-50 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Rental timeline</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {timelineSteps.map((step) => {
+              const done = isStepDone(rental, step.key);
+              return (
+                <div
+                  key={step.key}
+                  className={`rounded-md px-3 py-2 text-xs font-bold ${
+                    done ? "bg-emerald-100 text-emerald-800" : "bg-white text-slate-500"
+                  }`}
+                >
+                  {step.label}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {canPay ? (
           <div className="mt-2 flex flex-wrap gap-2">
             <PaymentButton rentalId={rental._id} onSuccess={fetchRentals} />
@@ -178,6 +247,34 @@ export default function Dashboard() {
           >
             Generate Return OTP
           </button>
+        ) : null}
+
+        {canReviewOwner ? (
+          <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+            <p className="label">Review owner</p>
+            <div className="mt-3 grid gap-3 md:grid-cols-[140px_1fr_auto]">
+              <select
+                className="field"
+                value={reviewDrafts[rental._id]?.rating || "5"}
+                onChange={(event) => updateReviewDraft(rental._id, "rating", event.target.value)}
+              >
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Okay</option>
+                <option value="2">2 - Poor</option>
+                <option value="1">1 - Bad</option>
+              </select>
+              <input
+                className="field"
+                placeholder="Share pickup, item condition, or owner response experience"
+                value={reviewDrafts[rental._id]?.comment || ""}
+                onChange={(event) => updateReviewDraft(rental._id, "comment", event.target.value)}
+              />
+              <button className="btn-primary" type="button" onClick={() => submitReview(rental)}>
+                Submit Review
+              </button>
+            </div>
+          </div>
         ) : null}
       </div>
     );
