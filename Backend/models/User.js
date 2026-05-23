@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
+  phone: { type: String, default: "" },
   password: { type: String, required: true },
   university_verified: { type: Boolean, default: false },
   otp: { type: Number, default: null },   // ✅ OTP field for email verification

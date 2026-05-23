@@ -4,7 +4,7 @@ import { api } from "../services/api";
 
 export default function Signup() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
@@ -37,6 +37,12 @@ export default function Signup() {
           type="email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
+        <input
+          className="field mb-3"
+          placeholder="Mobile number for faster checkout"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
         />
         <input
           type="password"

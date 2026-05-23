@@ -6,7 +6,11 @@ const paymentSchema = new mongoose.Schema({
   owner_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   amount: Number,
   deposit: Number,
+  currency: { type: String, default: "INR" },
   transaction_id: String,
+  razorpay_order_id: String,
+  razorpay_payment_id: String,
+  razorpay_signature: String,
   status: { type: String, enum: ["initiated", "paid", "refunded", "deducted"], default: "initiated" }
 }, { timestamps: true });
 

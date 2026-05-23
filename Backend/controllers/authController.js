@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 
 exports.signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -14,7 +14,12 @@ exports.signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({ name, email, password: hashedPassword });
+    const user = new User({
+      name,
+      email,
+      phone: phone?.trim() || "",
+      password: hashedPassword
+    });
     await user.save();
 
     // Send OTP via email
@@ -61,6 +66,7 @@ exports.login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         role: user.role,
         trust_score: user.trust_score,
         university_verified: user.university_verified
