@@ -241,12 +241,41 @@ exports.refundDeposit = async (req, res) => {
 
     const payment = await Payment.findOne({ rental_id: rental._id });
     if (!payment) return res.status(404).json({ error: "Payment not found" });
+
+    if (payment.status !== "paid") {
+      return res.status(400).json({ error: "Only paid rentals can be refunded" });
+    }
+
+    const refundAmount = Number(payment.deposit || rental.deposit_amount || 0);
+    if (refundAmount <= 0) {
+      return res.status(400).json({ error: "No deposit amount is available to refund" });
+    }
+
+    if (!payment.razorpay_payment_id) {
+      return res.status(400).json({ error: "Razorpay payment id is missing for this rental" });
+    }
+
+    const refund = await callRazorpay(`/v1/payments/${encodeURIComponent(payment.razorpay_payment_id)}/refund`, {
+      amount: Math.round(refundAmount * 100),
+      speed: process.env.RAZORPAY_REFUND_SPEED || "normal",
+      receipt: `deposit_refund_${rental._id}`,
+      notes: {
+        rental_id: String(rental._id),
+        renter_id: String(rental.renter_id),
+        owner_id: String(rental.owner_id),
+        refund_type: "deposit"
+      }
+    });
+
     payment.status = "refunded";
+    payment.razorpay_refund_id = refund.id;
+    payment.refund_amount = refundAmount;
     rental.refund_status = "refunded";
+    rental.rental_status = "refunded";
     await payment.save();
     await rental.save();
 
-    res.json({ message: "Deposit refunded", payment });
+    res.json({ message: "Deposit refund initiated", payment, refund });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

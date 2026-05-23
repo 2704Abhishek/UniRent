@@ -143,6 +143,7 @@ export default function Dashboard() {
 
   const isStepDone = (rental, stepKey) => {
     const statusOrder = ["pending", "approved", "active", "returned", "refunded"];
+    if (stepKey === "refunded") return rental.refund_status === "refunded" || rental.rental_status === "refunded";
     if (stepKey === "paid") return rental.payment_status === "paid";
     const currentIndex = statusOrder.indexOf(rental.rental_status);
     const stepIndex = statusOrder.indexOf(stepKey);

@@ -11,6 +11,8 @@ const paymentSchema = new mongoose.Schema({
   razorpay_order_id: String,
   razorpay_payment_id: String,
   razorpay_signature: String,
+  razorpay_refund_id: String,
+  refund_amount: { type: Number, default: 0 },
   status: { type: String, enum: ["initiated", "paid", "refunded", "deducted"], default: "initiated" }
 }, { timestamps: true });
 

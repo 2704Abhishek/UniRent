@@ -161,16 +161,20 @@ exports.verifyReturnOTP = async (req, res) => {
     const rental = await Rental.findById(req.params.id);
     if (!rental) return res.status(404).json({ error: "Rental not found" });
 
+    if (String(rental.renter_id) !== req.user.id) {
+      return res.status(403).json({ error: "Only the renter can confirm this return" });
+    }
+
     if (rental.return_otp !== otp || new Date() > rental.otp_expiry) {
       return res.status(400).json({ error: "Invalid or expired OTP" });
     }
 
     rental.rental_status = "returned";
-    rental.refund_status = "refunded";
+    rental.refund_status = "pending";
     await rental.save();
     await Item.findByIdAndUpdate(rental.item_id, { available: true });
 
-    res.json({ message: "Item return confirmed, deposit refunded", rental });
+    res.json({ message: "Item return confirmed. Deposit settlement is pending owner action.", rental });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
