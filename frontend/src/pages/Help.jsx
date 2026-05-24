@@ -1,4 +1,6 @@
 export default function Help() {
+  const supportEmail = "unirentcustomer@gmail.com";
+  const supportPhone = "+918077561640";
   const customerIssues = [
     {
       issue: "I cannot rent an item",
@@ -69,7 +71,26 @@ export default function Help() {
 
       <section className="rounded-lg border border-blue-100 bg-blue-50 p-5 text-sm text-blue-900 shadow-sm">
         <p className="font-semibold">Still stuck?</p>
-        <p className="mt-1">Contact the UniRent admin and include the item name, rental date, payment status, and a screenshot of the problem.</p>
+        <p className="mt-1">
+          Contact UniRent support at <a className="font-bold text-campus" href={`mailto:${supportEmail}`}>{supportEmail}</a>.
+          {" "}You can also call <a className="font-bold text-campus" href={`tel:${supportPhone}`}>+91 8077561640</a>.
+          Include the item name, rental date, payment status, and a screenshot of the problem.
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <div className="rounded-md bg-white p-3">
+            <p className="font-bold text-ink">Customer support</p>
+            <p className="mt-1 text-blue-900">Email: {supportEmail}</p>
+            <p className="mt-1 text-blue-900">Phone: +91 8077561640</p>
+          </div>
+          <div className="rounded-md bg-white p-3">
+            <p className="font-bold text-ink">Payment help</p>
+            <p className="mt-1 text-blue-900">Share payment status, transaction id, and rental id if available.</p>
+          </div>
+          <div className="rounded-md bg-white p-3">
+            <p className="font-bold text-ink">Refund help</p>
+            <p className="mt-1 text-blue-900">Refunds are handled after return OTP confirmation and owner settlement.</p>
+          </div>
+        </div>
       </section>
     </div>
   );

@@ -45,6 +45,7 @@ export default function DashboardSidebar() {
       ) : null}
       <ul className="space-y-1">
         <li><NavLink className={linkClass} to="/home">Browse Items</NavLink></li>
+        <li><NavLink className={linkClass} to="/checkout">Checkout Flow</NavLink></li>
         {user ? <li><NavLink className={linkClass} to="/my-listings">My Listings</NavLink></li> : null}
         {user ? (
           <li>
@@ -65,7 +66,10 @@ export default function DashboardSidebar() {
         ) : null}
         {user ? <li><NavLink className={linkClass} to="/dashboard">My Rentals</NavLink></li> : null}
         {isAdmin ? <li><NavLink className={linkClass} to="/admin">Admin Panel</NavLink></li> : null}
-        {user ? <li><NavLink className={linkClass} to="/help">Help</NavLink></li> : null}
+        <li><NavLink className={linkClass} to="/help">Help & Contact</NavLink></li>
+        <li><NavLink className={linkClass} to="/terms">Terms</NavLink></li>
+        <li><NavLink className={linkClass} to="/privacy">Privacy</NavLink></li>
+        <li><NavLink className={linkClass} to="/refund-policy">Refund Policy</NavLink></li>
         {user ? (
           <li>
             <button

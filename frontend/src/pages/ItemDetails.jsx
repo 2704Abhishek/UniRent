@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import RentalRequestForm from "../components/RentalRequestForm";
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../services/api";
@@ -41,12 +41,13 @@ export default function ItemDetail() {
   const trustSignals = item.trustSignals || {};
   const requestRental = () => {
     if (!isAvailable) return;
-    const form = document.getElementById("rental-request");
+    const form = document.getElementById(user ? "rental-request" : "rental-sign-in");
     form?.scrollIntoView({ behavior: "smooth", block: "start" });
     form?.querySelector("input")?.focus({ preventScroll: true });
   };
 
   const updateWishlist = () => {
+    if (!user) return;
     const ids = toggleWishlistItem(user?.id, id);
     setIsWishlisted(ids.includes(String(id)));
   };
@@ -153,16 +154,28 @@ export default function ItemDetail() {
               }`}
               type="button"
               onClick={updateWishlist}
+              disabled={!user}
             >
               <span aria-hidden="true" className="mr-2">{isWishlisted ? "♥" : "♡"}</span>
-              {isWishlisted ? "Saved in wishlist" : "Add to wishlist"}
+              {!user ? "Sign in to save" : isWishlisted ? "Saved in wishlist" : "Add to wishlist"}
             </button>
           </div>
         </div>
       </section>
 
-      {isAvailable ? (
+      {isAvailable && user ? (
         <RentalRequestForm itemId={id} item={item} />
+      ) : isAvailable ? (
+        <section id="rental-sign-in" className="rounded-lg border border-blue-100 bg-blue-50 p-5 text-sm text-blue-950 shadow-sm">
+          <p className="font-bold">Sign in to request this rental</p>
+          <p className="mt-1">
+            You can view item details publicly. To choose dates, create a rental request, and use checkout, please sign in first.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link className="btn-primary" to="/login">Sign in</Link>
+            <Link className="btn-secondary" to="/signup">Create account</Link>
+          </div>
+        </section>
       ) : (
         <div className="rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600 shadow-sm">
           This item is already on rent, so new rental requests are closed for now.
