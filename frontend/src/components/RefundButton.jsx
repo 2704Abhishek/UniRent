@@ -7,8 +7,9 @@ export default function RefundButton({ rentalId, onSuccess }) {
   const handleRefund = async () => {
     try {
       setMessage("");
-      await api.post(`/payments/${rentalId}/refund`, {});
-      setMessage("Deposit refund initiated.");
+      const data = await api.post(`/payments/${rentalId}/refund`, {});
+      const refundStatus = data.refund?.status ? ` Razorpay status: ${data.refund.status}.` : "";
+      setMessage(`Deposit refund initiated.${refundStatus}`);
       onSuccess?.();
     } catch (error) {
       setMessage(error.message);

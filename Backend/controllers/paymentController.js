@@ -20,21 +20,25 @@ const getRazorpayConfig = () => {
   };
 };
 
-const callRazorpay = (path, payload) =>
+const callRazorpay = (path, payload, method = "POST") =>
   new Promise((resolve, reject) => {
     const { keyId, keySecret } = getRazorpayConfig();
-    const body = JSON.stringify(payload);
+    const body = payload ? JSON.stringify(payload) : "";
+    const headers = {
+      Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`
+    };
+
+    if (body) {
+      headers["Content-Type"] = "application/json";
+      headers["Content-Length"] = Buffer.byteLength(body);
+    }
 
     const request = https.request(
       {
         hostname: "api.razorpay.com",
         path,
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
-          "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(body)
-        }
+        method,
+        headers
       },
       (response) => {
         let responseBody = "";
@@ -62,9 +66,49 @@ const callRazorpay = (path, payload) =>
     );
 
     request.on("error", reject);
-    request.write(body);
+    if (body) request.write(body);
     request.end();
   });
+
+const getRefundReference = (refund) => {
+  const data = refund?.acquirer_data;
+  if (!data || typeof data !== "object") return "";
+
+  return ["rrn", "arn", "utr", "bank_transaction_id"]
+    .map((key) => data[key])
+    .find(Boolean) || "";
+};
+
+const applyRefundState = async ({ rental, payment, refund, refundAmount }) => {
+  const refundStatus = refund?.status || "pending";
+  const refundReference = getRefundReference(refund);
+
+  payment.razorpay_refund_id = refund.id;
+  payment.razorpay_refund_status = refundStatus;
+  payment.razorpay_refund_reference = refundReference;
+  payment.refund_amount = refundAmount;
+
+  rental.razorpay_refund_id = refund.id;
+  rental.refund_processor_status = refundStatus;
+  rental.refund_reference = refundReference;
+
+  if (refundStatus === "processed") {
+    payment.status = "refunded";
+    rental.refund_status = "refunded";
+    rental.rental_status = "refunded";
+  } else if (refundStatus === "failed") {
+    payment.status = "refund_failed";
+    rental.refund_status = "failed";
+    rental.rental_status = "returned";
+  } else {
+    payment.status = "refund_processing";
+    rental.refund_status = "processing";
+    rental.rental_status = "returned";
+  }
+
+  await payment.save();
+  await rental.save();
+};
 
 const getRentalPaymentDetails = (rental) => {
   const start = new Date(rental.start_date);
@@ -235,14 +279,14 @@ exports.refundDeposit = async (req, res) => {
       return res.status(403).json({ error: "Only the owner can refund this deposit" });
     }
 
-    if (rental.rental_status !== "returned" || rental.refund_status !== "pending") {
+    if (rental.rental_status !== "returned" || !["pending", "failed"].includes(rental.refund_status)) {
       return res.status(400).json({ error: "Only pending returned rentals can be refunded" });
     }
 
     const payment = await Payment.findOne({ rental_id: rental._id });
     if (!payment) return res.status(404).json({ error: "Payment not found" });
 
-    if (payment.status !== "paid") {
+    if (!["paid", "refund_failed"].includes(payment.status)) {
       return res.status(400).json({ error: "Only paid rentals can be refunded" });
     }
 
@@ -267,15 +311,41 @@ exports.refundDeposit = async (req, res) => {
       }
     });
 
-    payment.status = "refunded";
-    payment.razorpay_refund_id = refund.id;
-    payment.refund_amount = refundAmount;
-    rental.refund_status = "refunded";
-    rental.rental_status = "refunded";
-    await payment.save();
-    await rental.save();
+    await applyRefundState({ rental, payment, refund, refundAmount });
 
     res.json({ message: "Deposit refund initiated", payment, refund });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getRefundStatus = async (req, res) => {
+  try {
+    const rental = await Rental.findById(req.params.id);
+    if (!rental) return res.status(404).json({ error: "Rental not found" });
+
+    const isParticipant = [rental.owner_id, rental.renter_id].some(
+      (participantId) => String(participantId) === String(req.user.id)
+    );
+
+    if (!isParticipant) {
+      return res.status(403).json({ error: "You can only check refunds for your own rentals" });
+    }
+
+    const payment = await Payment.findOne({ rental_id: rental._id });
+    if (!payment?.razorpay_refund_id) {
+      return res.status(404).json({ error: "Refund has not been initiated yet" });
+    }
+
+    const refund = await callRazorpay(`/v1/refunds/${encodeURIComponent(payment.razorpay_refund_id)}`, null, "GET");
+    await applyRefundState({
+      rental,
+      payment,
+      refund,
+      refundAmount: Number(payment.refund_amount || payment.deposit || rental.deposit_amount || 0)
+    });
+
+    res.json({ message: "Refund status updated", refund, rental });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

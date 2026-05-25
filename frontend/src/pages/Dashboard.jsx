@@ -13,6 +13,8 @@ export default function Dashboard() {
   const [activeOtpRentalId, setActiveOtpRentalId] = useState(null);
   const [activeView, setActiveView] = useState(null);
   const [reviewDrafts, setReviewDrafts] = useState({});
+  const [reviewMessages, setReviewMessages] = useState({});
+  const [submittedReviewIds, setSubmittedReviewIds] = useState({});
 
   const fetchRentals = async () => {
     try {
@@ -83,7 +85,21 @@ export default function Dashboard() {
         review_type: "owner"
       });
       setMessage("Review submitted. Thanks for helping other customers choose safely.");
+      setReviewMessages((current) => ({ ...current, [rental._id]: "Review submitted successfully." }));
+      setSubmittedReviewIds((current) => ({ ...current, [rental._id]: true }));
       setReviewDrafts((current) => ({ ...current, [rental._id]: { rating: "5", comment: "" } }));
+      fetchRentals();
+    } catch (error) {
+      setMessage(error.message);
+      setReviewMessages((current) => ({ ...current, [rental._id]: error.message }));
+    }
+  };
+
+  const checkRefundStatus = async (rentalId) => {
+    try {
+      const data = await api.get(`/payments/${rentalId}/refund-status`);
+      setMessage(data.message || "Refund status updated.");
+      fetchRentals();
     } catch (error) {
       setMessage(error.message);
     }
@@ -156,8 +172,14 @@ export default function Dashboard() {
     const canPay = isRenterView && rental.payment_status === "pending";
     const canDelete = canPay && rental.rental_status === "pending";
     const canReturn = isRenterView && ["approved", "active"].includes(rental.rental_status);
-    const canSettleDeposit = isOwnerView && rental.rental_status === "returned" && rental.refund_status === "pending";
-    const canReviewOwner = isRenterView && ["returned", "refunded"].includes(rental.rental_status);
+    const canSettleDeposit = isOwnerView && rental.rental_status === "returned" && ["pending", "failed"].includes(rental.refund_status);
+    const canDeductDeposit = isOwnerView && rental.rental_status === "returned" && rental.refund_status === "pending";
+    const reviewSubmitted = Boolean(rental.my_review_submitted || submittedReviewIds[rental._id]);
+    const canReviewOwner = isRenterView && ["returned", "refunded"].includes(rental.rental_status) && !reviewSubmitted;
+    const canCheckRefund = ["processing", "refunded"].includes(rental.refund_status) && rental.razorpay_refund_id;
+    const refundStatusText = rental.refund_status === "processing"
+      ? `processing${rental.refund_processor_status ? ` (${rental.refund_processor_status})` : ""}`
+      : rental.refund_status;
     const rentAmount = getRentAmount(rental);
     const depositAmount = Number(rental.deposit_amount ?? rental.item_id?.depositAmount ?? 0);
     const totalToPay = rentAmount + depositAmount;
@@ -200,9 +222,23 @@ export default function Dashboard() {
           </div>
           <div className="rounded-md bg-slate-50 p-3">
             <p className="text-slate-500">Refund status</p>
-            <p className="font-semibold text-ink">{rental.refund_status}</p>
+            <p className="font-semibold text-ink">{refundStatusText}</p>
           </div>
         </div>
+
+        {rental.razorpay_refund_id ? (
+          <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-blue-950">
+            <p className="font-semibold">Razorpay refund id: {rental.razorpay_refund_id}</p>
+            {rental.refund_reference ? (
+              <p className="mt-1">Bank reference: {rental.refund_reference}</p>
+            ) : (
+              <p className="mt-1">Bank reference appears after Razorpay/bank processes the refund.</p>
+            )}
+            {rental.refund_status === "processing" ? (
+              <p className="mt-1">Refund has been initiated. Normal refunds can take several working days to reach the customer.</p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="mt-4 rounded-lg bg-slate-50 p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Rental timeline</p>
@@ -237,8 +273,14 @@ export default function Dashboard() {
         {canSettleDeposit ? (
           <>
             <RefundButton rentalId={rental._id} onSuccess={fetchRentals} />
-            <DeductButton rentalId={rental._id} onSuccess={fetchRentals} />
+            {canDeductDeposit ? <DeductButton rentalId={rental._id} onSuccess={fetchRentals} /> : null}
           </>
+        ) : null}
+
+        {canCheckRefund ? (
+          <button className="btn-secondary mt-2" type="button" onClick={() => checkRefundStatus(rental._id)}>
+            Check Refund Status
+          </button>
         ) : null}
 
         {canReturn ? (
@@ -275,6 +317,14 @@ export default function Dashboard() {
                 Submit Review
               </button>
             </div>
+            {reviewMessages[rental._id] ? (
+              <p className="mt-2 text-sm font-medium text-slate-600">{reviewMessages[rental._id]}</p>
+            ) : null}
+          </div>
+        ) : null}
+        {isRenterView && reviewSubmitted ? (
+          <div className="mt-4 rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
+            Review submitted. Thanks for sharing your experience.
           </div>
         ) : null}
       </div>

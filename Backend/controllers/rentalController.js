@@ -1,6 +1,7 @@
 const Rental = require("../models/Rental");
 const Item = require("../models/Item");
 const User = require("../models/User");
+const Review = require("../models/Review");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
 
@@ -93,7 +94,17 @@ exports.getMyRentals = async (req, res) => {
       .populate("renter_id", "name email")
       .sort({ createdAt: -1 });
 
-    res.json(rentals);
+    const rentalIds = rentals.map((rental) => rental._id);
+    const reviews = await Review.find({
+      reviewer_id: req.user.id,
+      rental_id: { $in: rentalIds }
+    }).select("rental_id");
+    const reviewedRentalIds = new Set(reviews.map((review) => String(review.rental_id)));
+
+    res.json(rentals.map((rental) => ({
+      ...rental.toObject(),
+      my_review_submitted: reviewedRentalIds.has(String(rental._id))
+    })));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

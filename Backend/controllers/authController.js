@@ -3,6 +3,17 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
+const buildUserResponse = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  phone: user.phone,
+  role: user.role,
+  profile_photo: user.profile_photo || "",
+  trust_score: user.trust_score,
+  university_verified: user.university_verified
+});
+
 exports.signup = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
@@ -62,16 +73,35 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, jwtSecret, { expiresIn: "1d" });
     res.json({
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-        trust_score: user.trust_score,
-        university_verified: user.university_verified
-      }
+      user: buildUserResponse(user)
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const trimmedName = name?.trim();
+    if (!trimmedName) {
+      return res.status(400).json({ error: "Name is required" });
+    }
+
+    user.name = trimmedName;
+
+    if (req.file) {
+      user.profile_photo = `${req.protocol}://${req.get("host")}/uploads/profiles/${req.file.filename}`;
+    }
+
+    await user.save();
+    res.json({ message: "Profile updated", user: buildUserResponse(user) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

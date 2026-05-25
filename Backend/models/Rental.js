@@ -13,7 +13,10 @@ const rentalSchema = new mongoose.Schema({
   rental_status: { type: String, enum: ["pending", "approved", "active", "returned", "refunded"], default: "pending" },
   return_otp: String,
   otp_expiry: Date,
-  refund_status: { type: String, enum: ["pending", "refunded", "deducted"], default: "pending" },
+  refund_status: { type: String, enum: ["pending", "processing", "refunded", "failed", "deducted"], default: "pending" },
+  razorpay_refund_id: String,
+  refund_processor_status: String,
+  refund_reference: String,
   transaction_id: String
 }, { timestamps: true });
 

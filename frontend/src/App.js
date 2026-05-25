@@ -28,13 +28,9 @@ function AuthWelcome() {
           <Link className="btn-primary w-full" to="/login">Sign in</Link>
           <Link className="btn-secondary w-full" to="/signup">Sign up</Link>
         </div>
-        <div className="mt-5 flex flex-wrap justify-center gap-3 border-t border-slate-100 pt-4 text-xs font-semibold text-campus">
-          <Link to="/home">Product listings</Link>
-          <Link to="/help">Contact support</Link>
-          <Link to="/terms">Terms</Link>
-          <Link to="/privacy">Privacy</Link>
-          <Link to="/refund-policy">Refund policy</Link>
-        </div>
+        <p className="mt-5 border-t border-slate-100 pt-4 text-sm font-medium leading-6 text-slate-600">
+          Find what you need, share what you have, and keep campus rentals simple.
+        </p>
       </section>
     </div>
   );
