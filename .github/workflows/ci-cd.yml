@@ -142,6 +142,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
 
@@ -156,16 +157,18 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 20m
+          script_stop: true
 
           script: |
+            set -e
+
             cd ~/unirent
 
             git pull origin main
 
-            sudo docker compose down
-
             sudo docker compose pull
 
-            sudo docker compose up -d --build
+            sudo docker compose up -d --remove-orphans
 
             sudo docker image prune -af

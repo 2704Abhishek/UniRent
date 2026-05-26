@@ -8,6 +8,7 @@ services:
       - mongo-data:/data/db
 
   backend:
+    image: abhishek2704/unirent-backend:latest
     build:
       context: ./Backend
     restart: unless-stopped
@@ -21,6 +22,7 @@ services:
       - mongo
 
   frontend:
+    image: abhishek2704/unirent-frontend:latest
     build:
       context: ./frontend
       args:
