@@ -20,6 +20,8 @@ services:
       MONGO_URI: mongodb://mongo:27017/unirent
     depends_on:
       - mongo
+    ports:
+      - "127.0.0.1:5000:5000"
 
   frontend:
     image: abhishek2704/unirent-frontend:latest
