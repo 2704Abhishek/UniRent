@@ -47,14 +47,19 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/auth", authRoutes);
-app.use("/items", itemRoutes);
-app.use("/rentals", rentalRoutes);
-app.use("/reviews", reviewRoutes);
-app.use("/chats", chatRoutes);
-app.use("/payments", paymentRoutes);
-app.use("/admin", adminRoutes);
-app.use("/assistant", assistantRoutes);
+const registerRoutes = (prefix = "") => {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/items`, itemRoutes);
+  app.use(`${prefix}/rentals`, rentalRoutes);
+  app.use(`${prefix}/reviews`, reviewRoutes);
+  app.use(`${prefix}/chats`, chatRoutes);
+  app.use(`${prefix}/payments`, paymentRoutes);
+  app.use(`${prefix}/admin`, adminRoutes);
+  app.use(`${prefix}/assistant`, assistantRoutes);
+};
+
+registerRoutes();
+registerRoutes("/api");
 
 app.use(errorHandler);
 
