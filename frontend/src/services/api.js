@@ -1,4 +1,32 @@
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+
+const trimTrailingSlash = (value) => value.replace(/\/+$/, "");
+
+const getDefaultApiBaseUrl = () => {
+  if (typeof window !== "undefined" && localHosts.has(window.location.hostname)) {
+    return "http://localhost:5000";
+  }
+
+  return "/api";
+};
+
+export const API_BASE_URL = trimTrailingSlash(
+  process.env.REACT_APP_API_BASE_URL || getDefaultApiBaseUrl()
+);
+
+export const getSocketBaseUrl = () => {
+  const configuredSocketUrl = process.env.REACT_APP_SOCKET_BASE_URL;
+
+  if (configuredSocketUrl) {
+    return trimTrailingSlash(configuredSocketUrl);
+  }
+
+  if (/^https?:\/\//i.test(API_BASE_URL)) {
+    return API_BASE_URL;
+  }
+
+  return undefined;
+};
 
 async function request(path, options = {}) {
   const token = localStorage.getItem("token");
@@ -14,10 +42,16 @@ async function request(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers
-  });
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers
+    });
+  } catch {
+    throw new Error("Unable to reach the UniRent server. Please check the API URL and HTTPS proxy.");
+  }
 
   const data = await response.json().catch(() => ({}));
 

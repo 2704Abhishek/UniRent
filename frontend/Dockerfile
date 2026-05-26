@@ -2,7 +2,7 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-ARG REACT_APP_API_BASE_URL=http://localhost:5000
+ARG REACT_APP_API_BASE_URL=/api
 ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
 
 COPY package*.json ./

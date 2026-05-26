@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import io from "socket.io-client";
+import { getSocketBaseUrl } from "../services/api";
 
-const socket = io("http://localhost:5000");
+const socket = io(getSocketBaseUrl());
 
 export default function ChatBox({ userId, receiverId }) {
   const [messages, setMessages] = useState([]);
