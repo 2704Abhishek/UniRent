@@ -27,7 +27,7 @@ services:
         REACT_APP_API_BASE_URL: /api
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "3001:80"
     depends_on:
       - backend
 
