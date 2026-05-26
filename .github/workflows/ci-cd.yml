@@ -142,7 +142,6 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
 
     steps:
 
@@ -152,29 +151,21 @@ jobs:
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 20m
-          envs: DOCKER_USERNAME,DOCKER_PASSWORD
-          script_stop: true
 
           script: |
-            set -e
-
             cd ~/unirent
 
             git pull origin main
 
-            echo "$DOCKER_PASSWORD" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
+            sudo docker compose down
 
             sudo docker compose pull
 
-            sudo docker compose up -d --remove-orphans
+            sudo docker compose up -d --build
 
             sudo docker image prune -af
