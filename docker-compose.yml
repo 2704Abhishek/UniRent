@@ -1,39 +1,27 @@
 services:
-  mongo:
-    image: mongo:7
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
 
   backend:
     image: abhishek2704/unirent-backend:latest
-    build:
-      context: ./Backend
+    container_name: unirent-backend
     restart: unless-stopped
+
     env_file:
       - ./Backend/.env
+
     environment:
       NODE_ENV: production
       PORT: 5000
-      MONGO_URI: mongodb://mongo:27017/unirent
-    depends_on:
-      - mongo
+
     ports:
       - "127.0.0.1:5000:5000"
 
   frontend:
     image: abhishek2704/unirent-frontend:latest
-    build:
-      context: ./frontend
-      args:
-        REACT_APP_API_BASE_URL: /api
+    container_name: unirent-frontend
     restart: unless-stopped
-    ports:
-      - "3001:80"
+
     depends_on:
       - backend
 
-volumes:
-  mongo-data:
+    ports:
+      - "3001:80"
