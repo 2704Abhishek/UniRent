@@ -12,11 +12,15 @@ jobs:
 
     steps:
 
+      # =========================
+      # CHECKOUT CODE
+      # =========================
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
       # =========================
-      # NODE SETUP
+      # SETUP NODE
       # =========================
 
       - name: Setup Node.js
@@ -25,7 +29,7 @@ jobs:
           node-version: 20
 
       # =========================
-      # FRONTEND TEST
+      # INSTALL FRONTEND
       # =========================
 
       - name: Install Frontend Dependencies
@@ -33,13 +37,17 @@ jobs:
           cd frontend
           npm install
 
+      # =========================
+      # FRONTEND TESTS
+      # =========================
+
       - name: Run Frontend Tests
         run: |
           cd frontend
           npm test -- --watchAll=false || true
 
       # =========================
-      # BACKEND TEST
+      # INSTALL BACKEND
       # =========================
 
       - name: Install Backend Dependencies
@@ -47,19 +55,27 @@ jobs:
           cd Backend
           npm install
 
+      # =========================
+      # BACKEND TESTS
+      # =========================
+
       - name: Run Backend Tests
         run: |
           cd Backend
           npm test
 
       # =========================
-      # SONARQUBE SCAN
+      # SONARCLOUD SCAN
       # =========================
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=2704Abhishek_unirent
+            -Dsonar.organization=2704abhishek
 
       # =========================
       # DOCKER LOGIN
@@ -72,20 +88,24 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       # =========================
-      # BUILD IMAGES
+      # BUILD BACKEND IMAGE
       # =========================
 
       - name: Build Backend Docker Image
         run: docker build -t abhishek2704/unirent-backend ./Backend
 
+      # =========================
+      # BUILD FRONTEND IMAGE
+      # =========================
+
       - name: Build Frontend Docker Image
         run: docker build -t abhishek2704/unirent-frontend ./frontend
 
       # =========================
-      # TRIVY SECURITY SCAN
+      # TRIVY BACKEND SCAN
       # =========================
 
-      - name: Run Trivy Scan Backend
+      - name: Scan Backend Image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: abhishek2704/unirent-backend
@@ -93,7 +113,11 @@ jobs:
           exit-code: 0
           ignore-unfixed: true
 
-      - name: Run Trivy Scan Frontend
+      # =========================
+      # TRIVY FRONTEND SCAN
+      # =========================
+
+      - name: Scan Frontend Image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: abhishek2704/unirent-frontend
@@ -102,11 +126,15 @@ jobs:
           ignore-unfixed: true
 
       # =========================
-      # PUSH IMAGES
+      # PUSH BACKEND IMAGE
       # =========================
 
       - name: Push Backend Docker Image
         run: docker push abhishek2704/unirent-backend
+
+      # =========================
+      # PUSH FRONTEND IMAGE
+      # =========================
 
       - name: Push Frontend Docker Image
         run: docker push abhishek2704/unirent-frontend
@@ -117,8 +145,13 @@ jobs:
 
     steps:
 
+      # =========================
+      # DEPLOY TO EC2
+      # =========================
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
+
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
