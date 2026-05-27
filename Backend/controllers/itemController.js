@@ -10,14 +10,52 @@ function getUploadedImageUrl(req) {
   return `${req.protocol}://${req.get("host")}/uploads/items/${req.file.filename}`;
 }
 
-function buildItemPayload(req) {
+function normalizeImages(images) {
+  if (Array.isArray(images)) {
+    return images.filter(Boolean);
+  }
+
+  if (typeof images !== "string") {
+    return null;
+  }
+
+  const trimmedImage = images.trim();
+
+  if (!trimmedImage) {
+    return [];
+  }
+
+  try {
+    const parsedImages = JSON.parse(trimmedImage);
+    return Array.isArray(parsedImages) ? parsedImages.filter(Boolean) : [trimmedImage];
+  } catch {
+    return [trimmedImage];
+  }
+}
+
+function parseAvailable(value, fallback = true) {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.toLowerCase() !== "false";
+  }
+
+  return Boolean(value);
+}
+
+function buildItemPayload(req, options = {}) {
   const { body } = req;
   const uploadedImageUrl = getUploadedImageUrl(req);
+  const bodyImages = normalizeImages(body.images);
   const images = uploadedImageUrl
     ? [uploadedImageUrl]
-    : Array.isArray(body.images)
-      ? body.images.filter(Boolean)
-      : [];
+    : bodyImages ?? options.existingImages ?? [];
 
   return {
     title: body.title?.trim(),
@@ -32,7 +70,7 @@ function buildItemPayload(req) {
     pricePerDay: Number(body.pricePerDay),
     depositAmount: Number(body.depositAmount || 0),
     lateReturnFee: Number(body.lateReturnFee || 0),
-    available: body.available ?? true,
+    available: parseAvailable(body.available, options.existingAvailable ?? true),
     images
   };
 }
@@ -205,7 +243,10 @@ exports.updateItem = async (req, res) => {
       return res.status(403).json({ error: "You can only update your own items" });
     }
 
-    Object.assign(item, buildItemPayload(req));
+    Object.assign(item, buildItemPayload(req, {
+      existingAvailable: item.available,
+      existingImages: item.images
+    }));
     await item.save();
 
     const populatedItem = await item.populate("owner", "name email university_verified trust_score");

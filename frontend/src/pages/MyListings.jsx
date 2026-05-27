@@ -15,7 +15,8 @@ const emptyDraft = {
   pricePerDay: "",
   depositAmount: "",
   lateReturnFee: "",
-  imageUrl: "",
+  currentImageUrl: "",
+  imageFile: null,
   available: true
 };
 
@@ -26,6 +27,7 @@ export default function MyListings() {
   const [message, setMessage] = useState("Loading your listings...");
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState(emptyDraft);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
 
   const loadItems = async () => {
     try {
@@ -40,6 +42,18 @@ export default function MyListings() {
   useEffect(() => {
     loadItems();
   }, []);
+
+  useEffect(() => {
+    if (!draft.imageFile) {
+      setImagePreviewUrl("");
+      return undefined;
+    }
+
+    const objectUrl = URL.createObjectURL(draft.imageFile);
+    setImagePreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [draft.imageFile]);
 
   const startEditing = (item) => {
     setEditingId(item._id);
@@ -56,7 +70,8 @@ export default function MyListings() {
       pricePerDay: item.pricePerDay || "",
       depositAmount: item.depositAmount || "",
       lateReturnFee: item.lateReturnFee || "",
-      imageUrl: item.images?.[0] || "",
+      currentImageUrl: item.images?.[0] || "",
+      imageFile: null,
       available: item.available ?? true
     });
   };
@@ -68,22 +83,26 @@ export default function MyListings() {
 
   const saveItem = async (itemId) => {
     try {
-      await api.put(`/items/${itemId}`, {
-        title: draft.title,
-        description: draft.description,
-        category: draft.category,
-        condition: draft.condition,
-        brandModel: draft.brandModel,
-        accessories: draft.accessories,
-        contactPhone: draft.contactPhone,
-        address: draft.address,
-        pickupInstructions: draft.pickupInstructions,
-        pricePerDay: Number(draft.pricePerDay),
-        depositAmount: Number(draft.depositAmount || 0),
-        lateReturnFee: Number(draft.lateReturnFee || 0),
-        available: draft.available,
-        images: draft.imageUrl.trim() ? [draft.imageUrl.trim()] : []
-      });
+      const payload = new FormData();
+      payload.append("title", draft.title);
+      payload.append("description", draft.description);
+      payload.append("category", draft.category);
+      payload.append("condition", draft.condition);
+      payload.append("brandModel", draft.brandModel);
+      payload.append("accessories", draft.accessories);
+      payload.append("contactPhone", draft.contactPhone);
+      payload.append("address", draft.address);
+      payload.append("pickupInstructions", draft.pickupInstructions);
+      payload.append("pricePerDay", Number(draft.pricePerDay));
+      payload.append("depositAmount", Number(draft.depositAmount || 0));
+      payload.append("lateReturnFee", Number(draft.lateReturnFee || 0));
+      payload.append("available", draft.available ? "true" : "false");
+
+      if (draft.imageFile) {
+        payload.append("image", draft.imageFile);
+      }
+
+      await api.put(`/items/${itemId}`, payload);
       setMessage("Listing updated.");
       cancelEditing();
       loadItems();
@@ -184,12 +203,31 @@ export default function MyListings() {
                   value={draft.accessories}
                   onChange={(event) => setDraft((current) => ({ ...current, accessories: event.target.value }))}
                 />
-                <input
-                  className="field"
-                  placeholder="Image URL"
-                  value={draft.imageUrl}
-                  onChange={(event) => setDraft((current) => ({ ...current, imageUrl: event.target.value }))}
-                />
+                <label className="block rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-700">
+                  <span className="font-semibold">Item photo</span>
+                  <span className="mt-1 block text-slate-500">
+                    {draft.imageFile ? draft.imageFile.name : "Choose a new image from your device"}
+                  </span>
+                  <img
+                    src={imagePreviewUrl || draft.currentImageUrl || fallbackImage}
+                    alt="Selected item preview"
+                    className="mt-3 h-48 w-full rounded-md border border-slate-200 bg-white object-cover"
+                    onError={(event) => {
+                      event.currentTarget.src = fallbackImage;
+                    }}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="mt-3 block w-full text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-campus file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700"
+                    onChange={(event) => {
+                      setDraft((current) => ({
+                        ...current,
+                        imageFile: event.target.files?.[0] || null
+                      }));
+                    }}
+                  />
+                </label>
                 <input
                   type="tel"
                   inputMode="tel"
